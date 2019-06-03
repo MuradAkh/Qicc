@@ -42,10 +42,10 @@ end
 class countCalls = object(self)
 
   inherit nopCilVisitor
-(* 
+
   method vglob s = match s with
   | GFun (fundec, funloc) -> Cfg.printCfgChannel stdout fundec; DoChildren;
-  | _ -> DoChildren; *)
+  | _ -> DoChildren;
 
   method vstmt s = match s.skind with
   | Loop _ -> incr total; ignore(visitCilStmt (new checkLocalAST) s); DoChildren;

@@ -1,0 +1,14 @@
+{
+  "name": "local-functions",
+  "version": "1.0.0",
+  "description": "",
+  "main": "test.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "mocha": "^6.1.4"
+  }
+}

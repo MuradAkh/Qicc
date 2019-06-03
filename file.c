@@ -6,14 +6,21 @@
 
 // }
 
-// int hello(){
-// 	return hello2();
+int hello(){
+	return hello2();
 
-// }
+}
 
 int main()
 {
-   // hello();
+   hello();
+   hello();
+   hello();
+   hello();
+   hello();
+   hello();
+   hello();
+   hello();
    int x = 1;
    int y = 1;
 
