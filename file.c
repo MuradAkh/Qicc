@@ -2,33 +2,22 @@
 
 
 int main(){
-   int x = 1;
-   int y = 1;
+  int x = 1;
+  while(x > 0){
+        if(x < -1)break;
+    x = -1;
+  }
 
-   // if(x == 1){
-   //    x = 0;
-   // }
+  int y = 1;
+  int g = x * y;
+  while(y > 0){
+    if(g < -1)break;
+    y = -1;
+  }
 
-   if(x > 0){
-         printf("Hello, World!");
-   }
+   while(x > 0){
+    x = -1;
+  }
 
-   while (x){
-
-     x = 0;
-     
-   }
-
-       while (y)
-     {
-        y = 0;
-     }
-
-
-   
-   
-   
-   
-   printf("Hello, World!");
-   return 0;
+  return 0;
 }

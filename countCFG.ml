@@ -12,6 +12,8 @@ exception TarjanMe of string
 let counter = ref 0
 let total = ref 0
 let nonlocal = ref 0 
+let locals = ref []
+let nonlocals = ref []
 
 let unoption = function
   | Some x -> x;
@@ -67,9 +69,46 @@ class countLocalCFG max = object(self)
         strongconnect root;
         tarjaned <- true; 
 
-      method countnonlocal stmt = 
-        if(not tarjaned) then raise (TarjanMe "error: have to perform tarjan before counting non local");
-        stmt.sid
+
+    method countnonlocal stmt = 
+      if(not tarjaned) then raise (TarjanMe "error: have to perform tarjan before counting non local");
+      let visited = Array.make (max+1) false in
+
+      let loopverify x = begin
+            let loopvisited = Array.make (max+1) false in
+            let exits = ref 0 in
+            let loopid = lows.(x.sid) in
+
+            let rec dfs y = begin
+              loopvisited.(y.sid) <- true;  
+              let checkdfs s = if (not loopvisited.(s.sid)) then begin
+                 if (lows.(s.sid) = loopid) then dfs s 
+                 else if (ids.(y.sid) != loopid) then incr exits; (*not root of loop*)
+              
+              end in
+
+              List.iter checkdfs y.succs
+            end in
+
+            dfs x;            
+            if(!exits > 1) then begin incr nonlocal;  nonlocals :=  x.sid :: !nonlocals end  
+            else locals :=  x.sid :: !locals
+
+      end in
+
+
+      let rec dfs x = begin
+          visited.(x.sid) <- true;  
+          if (loop.(x.sid)) then loopverify x;
+
+          let checkdfs s = if (not visited.(s.sid)) then dfs s in
+
+          List.iter checkdfs x.succs
+      end in
+
+      dfs stmt;
+
+      stmt.sid
 
 end
 
@@ -99,8 +138,10 @@ let feature : Feature.t = {
       Cfg.computeFileCFG f;
       visitCilFileSameGlobals (new countCalls) f;
       Errormsg.log "total: %d\n" !total;
-      Errormsg.log "nonlocal: %d\n" !nonlocal;
+      Errormsg.log "totalnonlocal: %d\n" !nonlocal;
       Errormsg.log "well-structured: %b\n" (!nonlocal = 0);
+      Errormsg.log "nonlocals: %s\n" (String.concat " " (List.map string_of_int !nonlocals));
+      Errormsg.log "locals: %s\n" (String.concat " " (List.map string_of_int !locals))
       (* Errormsg.log "%s contains %d function calls\n" f.fileName !counter; *)
     );
 
