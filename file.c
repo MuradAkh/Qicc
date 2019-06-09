@@ -1,26 +1,7 @@
 #include <stdio.h>
 
 
-// int hello2(){
-// 	return 3;
-
-// }
-
-int hello(){
-	return hello2();
-
-}
-
-int main()
-{
-   hello();
-   hello();
-   hello();
-   hello();
-   hello();
-   hello();
-   hello();
-   hello();
+int main(){
    int x = 1;
    int y = 1;
 
@@ -28,17 +9,21 @@ int main()
    //    x = 0;
    // }
 
+   if(x > 0){
+         printf("Hello, World!");
+   }
+
    while (x){
-
-      while (y)
-     {
-        y = 0;
-     }
-
 
      x = 0;
      
    }
+
+       while (y)
+     {
+        y = 0;
+     }
+
 
    
    

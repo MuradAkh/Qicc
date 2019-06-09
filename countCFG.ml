@@ -11,23 +11,71 @@ let counter = ref 0
 let total = ref 0
 let nonlocal = ref 0 
 
-let toint a = a.sid
-
-let printlist a = 
-  if((List.length a) > 0) then
-  List.iter (printf "%d ") (List.map toint a) 
+let unoption = function
+  | Some x -> x;
+  | None -> -1;
 
 
+class countLocalCFG max = object(self)
+    val ids = Array.make (max+1) (-1)
+    val lows = Array.make (max+1) (-1)
+    
+    method tarjan root = 
+        let onstack = Array.make (max+1) false in 
+        let stack = Stack.create () in
+        let idx = ref 0 in 
 
-let ifincr a = 
-  if (a) then incr nonlocal
+        let rec strongconnect x = begin
+            ids.(x.sid) <- !idx; 
+            lows.(x.sid) <- !idx; 
+            onstack.(x.sid) <- true; 
+            incr idx;
+            Stack.push x.sid stack;       
+
+            let checksucc s = begin
+                if(ids.(s.sid) = -1) then begin
+                    strongconnect s; 
+                    lows.(x.sid) <- (min lows.(x.sid) lows.(s.sid))
+                    end 
+                else if(onstack.(s.sid)) then lows.(x.sid) <- (min lows.(x.sid) lows.(s.sid));       
+                
+                end in
+
+            List.iter checksucc x.succs;
+
+            if(ids.(x.sid) = lows.(x.sid)) then begin
+               let size = ref 0 in
+
+               let rec clean _ =  begin 
+                  incr size;
+                  let w = Stack.pop stack in
+                  onstack.(w) <- false;
+                  if (x.sid != w) then clean ();
+               end in         
+
+               clean ();      
+               if !size > 1 then print_endline (string_of_int x.sid)
+
+            end
+
+        end in
+
+        strongconnect root;
+        (* print_endline (string_of_int s.sid) *)
+
+end
+
+let cfgChecker max stmt = 
+    let obj = (new countLocalCFG (unoption max)) in
+    obj#tarjan stmt
+
 
 class countCalls = object(self)
 
   inherit nopCilVisitor
 
   method vglob s = match s with
-  | GFun (fundec, funloc) -> Cfg.printCfgChannel stdout fundec; DoChildren;
+  | GFun (fundec, funloc) ->  ignore((cfgChecker fundec.smaxstmtid (List.hd fundec.sallstmts))); SkipChildren;
   | _ -> DoChildren;
 end
 

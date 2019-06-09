@@ -21,6 +21,8 @@ Install and compile CIL (**warning** - does not work with version availible in o
 
 #### Testing
 
+Basic Prerequisites 
+
     nodejs
     npm
 

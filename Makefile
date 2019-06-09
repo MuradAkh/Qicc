@@ -4,7 +4,7 @@ countAST: countAST.ml
 countCFG: countCFG.ml
 	ocamlbuild -use-ocamlfind -package cil countCFG.cma countCFG.cmxs
 
-run-countAST: countCFG
+run-countAST: countAST
 	cilly --gcc=/usr/bin/gcc-6 --load=_build/countAST.cmxs  file.c 
 
 run-countCFG: countCFG
