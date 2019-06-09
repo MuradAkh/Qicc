@@ -6,6 +6,8 @@ open Cil
 open Feature (* XXX you need to open the Feature module *)
 open Printf
 
+exception TarjanMe of string 
+
 
 let counter = ref 0
 let total = ref 0
@@ -19,6 +21,8 @@ let unoption = function
 class countLocalCFG max = object(self)
     val ids = Array.make (max+1) (-1)
     val lows = Array.make (max+1) (-1)
+    val loop = Array.make (max+1) false
+    val mutable tarjaned = false
     
     method tarjan root = 
         let onstack = Array.make (max+1) false in 
@@ -54,20 +58,25 @@ class countLocalCFG max = object(self)
                end in         
 
                clean ();      
-               if !size > 1 then print_endline (string_of_int x.sid)
+               if !size > 1 then (loop.(x.sid) <- true; incr total)
 
             end
 
         end in
 
         strongconnect root;
-        (* print_endline (string_of_int s.sid) *)
+        tarjaned <- true; 
+
+      method countnonlocal stmt = 
+        if(not tarjaned) then raise (TarjanMe "error: have to perform tarjan before counting non local");
+        stmt.sid
 
 end
 
 let cfgChecker max stmt = 
     let obj = (new countLocalCFG (unoption max)) in
-    obj#tarjan stmt
+    obj#tarjan stmt;
+    obj#countnonlocal stmt;
 
 
 class countCalls = object(self)
@@ -89,7 +98,9 @@ let feature : Feature.t = {
     fd_doit = (function f ->
       Cfg.computeFileCFG f;
       visitCilFileSameGlobals (new countCalls) f;
-      Errormsg.log "found %d nonlocal out of %d loops\n" !nonlocal !total
+      Errormsg.log "total: %d\n" !total;
+      Errormsg.log "nonlocal: %d\n" !nonlocal;
+      Errormsg.log "well-structured: %b\n" (!nonlocal = 0);
       (* Errormsg.log "%s contains %d function calls\n" f.fileName !counter; *)
     );
 
