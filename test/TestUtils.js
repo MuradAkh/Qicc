@@ -1,3 +1,8 @@
+const assert = require('assert');
+const util = require('util');
+const exec = util.promisify(require('child_process').exec);
+
+
 const cillyCommand = (filename) => {
     return `cilly --gcc=/usr/bin/gcc-6 --load=_build/countCFG.cmxs test/${filename}.c`
 } 
@@ -31,4 +36,15 @@ const parse = (stderr) => {
         
 }
 
-module.exports = {cillyCommand, parse}
+
+const basicTest =  async (data) => {
+    const { stderr, stdout } = await exec(cillyCommand(data.test))
+    const result = parse(stderr);
+    assert.equal(result.total, data.total);
+    assert.equal(result.totalnonlocal, data.totalnonlocal);
+    assert.equal(result.wellstructured, data.wellstructured);
+    assert.deepEqual(result.locals, data.locals);
+    assert.deepEqual(result.nonlocals, data.nonlocals);
+}
+
+module.exports = {cillyCommand, parse, basicTest}
