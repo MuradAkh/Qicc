@@ -23,7 +23,12 @@ describe('CFG Test', () => {
     it('noloops', async () => {
         const str = 'Hello World'
         const { stderr, stdout } = await exec(cillyCommand('noloops'))
-        assert.equal(stdout, "");
+        const result = parse(stderr);
+        assert.equal(result.total, 0);
+        assert.equal(result.totalnonlocal, 0);
+        assert.equal(result.wellstructured, true);
+        assert.deepEqual(result.locals, []);
+        assert.deepEqual(result.nonlocals, []);
     });
 
 

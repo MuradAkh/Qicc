@@ -26,7 +26,7 @@ const parse = (stderr) => {
                  const o = {}
                  o[it[0]] = parsevalue(it[0], it[1])
                  return o
-             })
+             }).reduce((acc, cur) => ({...acc, ...cur}))
         
 }
 
