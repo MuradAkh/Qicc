@@ -31,5 +31,38 @@ describe('CFG Test', () => {
         assert.deepEqual(result.nonlocals, []);
     });
 
+    it('twolocal', async () => {
+        const str = 'Hello World'
+        const { stderr, stdout } = await exec(cillyCommand('noloops'))
+        const result = parse(stderr);
+        assert.equal(result.total, 0);
+        assert.equal(result.totalnonlocal, 0);
+        assert.equal(result.wellstructured, true);
+        assert.deepEqual(result.locals, []);
+        assert.deepEqual(result.nonlocals, []);
+    });
+
+    it('oneach', async () => {
+        const str = 'Hello World'
+        const { stderr, stdout } = await exec(cillyCommand('noloops'))
+        const result = parse(stderr);
+        assert.equal(result.total, 0);
+        assert.equal(result.totalnonlocal, 0);
+        assert.equal(result.wellstructured, true);
+        assert.deepEqual(result.locals, []);
+        assert.deepEqual(result.nonlocals, []);
+    });
+
+    it('goto', async () => {
+        const str = 'Hello World'
+        const { stderr, stdout } = await exec(cillyCommand('noloops'))
+        const result = parse(stderr);
+        assert.equal(result.total, 0);
+        assert.equal(result.totalnonlocal, 0);
+        assert.equal(result.wellstructured, true);
+        assert.deepEqual(result.locals, []);
+        assert.deepEqual(result.nonlocals, []);
+    });
+
 
 });
