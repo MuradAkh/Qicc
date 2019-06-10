@@ -139,7 +139,7 @@ let feature : Feature.t = {
       visitCilFileSameGlobals (new countCalls) f;
       Errormsg.log "total: %d\n" !total;
       Errormsg.log "totalnonlocal: %d\n" !nonlocal;
-      Errormsg.log "well-structured: %b\n" (!nonlocal = 0);
+      Errormsg.log "wellstructured: %b\n" (!nonlocal = 0);
       Errormsg.log "nonlocals: %s\n" (String.concat " " (List.map string_of_int !nonlocals));
       Errormsg.log "locals: %s\n" (String.concat " " (List.map string_of_int !locals))
       (* Errormsg.log "%s contains %d function calls\n" f.fileName !counter; *)
