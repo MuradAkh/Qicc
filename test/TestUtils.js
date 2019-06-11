@@ -3,9 +3,7 @@ const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
 
-const cillyCommand = (filename) => {
-    return `cilly --gcc=/usr/bin/gcc-6 --load=_build/countCFG.cmxs test/${filename}.c`
-} 
+const cillyCommand = (filename) => `cilly --gcc=/usr/bin/gcc-6 --load=_build/countCFG.cmxs test/${filename}.c`
 
 const parse = (stderr) => {
 

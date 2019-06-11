@@ -1,4 +1,4 @@
-# Check if the Program is well structured
+# Check if a Program is well structured
 
 ## Prerequisites
 
@@ -11,7 +11,7 @@ Basic Prerequisites
     ocaml-findlib
     opam
 
-Install and compile CIL (**warning** - does not work with version availible in opam)
+Install and compile CIL (**warning** - does not work with the version availible in opam)
 
     git clone https://github.com/cil-project/cil
     cd cil
@@ -31,23 +31,21 @@ Installing on Ubuntu 16.04 or higher:
     sudo apt update
     sudo apt install nodejs npm
 
-After installing, navigate to project directory and run
+After installing, navigate to the project directory and run
 
-    npm i
+    npm install
 
 ## Compiling and Running
 
 Run the cheker, target functions must located be in `file.c`
-
-CFG:
-
+<!-- CFG: -->
     make countCFG
     make run-countCFG
 
-AST (naiive aproach):
+<!-- AST (naiive aproach):
 
     make countAST
-    make run-countAST
+    make run-countAST -->
 
 ## Testing
 
