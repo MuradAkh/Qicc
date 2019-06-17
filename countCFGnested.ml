@@ -15,65 +15,85 @@ let nonlocal = ref 0
 let locals = ref []
 let nonlocals = ref []
 
+let printint i = (print_endline (string_of_int i));;
+
+
 let unoption = function
   | Some x -> x;
   | None -> -1;
 
 
+
 class countLocalCFG max = object(self)
     val ids = Array.make (max+1) (-1)
-    val loops = Array.make (max+1) (-1)
+    val loops = Array.init (max+1) (fun i -> ref [])
     val loop = Array.make (max+1) false
     val mutable tarjaned = false
-    
+
+
     method tarjan root = 
-        let onstack = Array.make (max+1) false in 
-        let lows = Array.make (max+1) (-1) in
-        let stack = Stack.create () in
         let idx = ref 0 in 
+      
+       
+        let rec tarjanx looproot first = begin
+            let llows = Array.make (max+1) (-1) in
+            let onstack = Array.make (max+1) false in 
+            let visited = Array.make (max+1) false in 
+            let stack = Stack.create () in
 
+            let rec strongconnect x = begin
+                if(first) then (ids.(x.sid) <- !idx; incr idx);
+                llows.(x.sid) <- ids.(x.sid); 
+                onstack.(x.sid) <- true; 
+                visited.(x.sid) <- true; 
+                Stack.push x.sid stack;       
 
-        let rec strongconnect x = begin
-            ids.(x.sid) <- !idx; 
-            lows.(x.sid) <- !idx; 
-            onstack.(x.sid) <- true; 
-            incr idx;
-            Stack.push x.sid stack;       
-
-            let checksucc s = begin
-                if(ids.(s.sid) = -1) then begin
-                    strongconnect s; 
-                    lows.(x.sid) <- (min lows.(x.sid) lows.(s.sid))
+                let checksucc s = begin if(first || (self#part_of_loop ids.(looproot.sid) s.sid && (s.sid != looproot.sid))) then begin
+                    if((not visited.(s.sid))) then begin
+                        strongconnect s; 
+                        llows.(x.sid) <- (min llows.(x.sid) llows.(s.sid));
+                        end 
+                    else if(onstack.(s.sid))  then llows.(x.sid) <- (min llows.(x.sid) llows.(s.sid));       
                     end 
-                else if(onstack.(s.sid)) then lows.(x.sid) <- (min lows.(x.sid) ids.(s.sid));       
-                
                 end in
 
-            List.iter checksucc x.succs;
+                List.iter checksucc x.succs;
 
-            if(ids.(x.sid) = lows.(x.sid)) then begin
-               let size = ref 0 in
+                if(ids.(x.sid) = llows.(x.sid)) then begin
+                    let size = ref 0 in
 
-               let rec clean _ =  begin 
-                  incr size;
-                  let w = Stack.pop stack in
-                  onstack.(w) <- false;
-                  loops.(w) <- ids.(x.sid);
-                  if (x.sid != w) then clean ();
-               end in         
+                    let rec clean _ =  begin 
+                        incr size;
+                        let w = Stack.pop stack in
+                        onstack.(w) <- false;
+                        loops.(w) := ids.(x.sid) :: !(loops.(w));
+                        if (x.sid != w) then clean ();
+                    end in         
 
-               clean ();      
-               if !size > 1 then (loop.(x.sid) <- true; incr total)
+                    clean ();      
 
-            end
+                    if !size > 1 then  begin
+                            loop.(x.sid) <- true; 
+                            incr total;
+                            ignore(tarjanx x false);
+                    end
 
-        end in
+                end
+            end in
 
-        strongconnect root;
+            strongconnect looproot
+        
+        end; in
+        tarjanx root true;
         tarjaned <- true; 
 
+    method part_of_loop loopid vertex = 
+        let bools = List.map (fun it -> it = loopid) !(loops.(vertex)) in    
+        List.fold_left (fun a b -> a || b) false bools;
 
     method countnonlocal stmt = 
+    (* Array.iter (fun lst -> List.iter (fun it -> (print_endline (string_of_int it))) !lst) loops; *)
+
 
       if(not tarjaned) then raise (TarjanMe "error: have to perform tarjan before counting non local");
       let visited = Array.make (max+1) false in
@@ -86,8 +106,8 @@ class countLocalCFG max = object(self)
             let rec dfs y = begin
               loopvisited.(y.sid) <- true;  
               let checkdfs s = if (not loopvisited.(s.sid)) then begin
-                 if (loops.(s.sid) = loopid) then (dfs s)
-                 else if (ids.(y.sid) != loopid) then ((incr exits))  (*not root of loop*)
+                 if (self#part_of_loop loopid s.sid) then dfs s 
+                 else if (ids.(y.sid) != loopid) then incr exits; (*not root of loop*)
               
               end in
 
