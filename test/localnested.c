@@ -4,7 +4,6 @@ int main(){
     int i = 1;
     while(!i){
       int j = 1;
-      if(!i) break;
       while(!j){
         int x = 0;
       }
