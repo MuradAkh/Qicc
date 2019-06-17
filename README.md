@@ -38,9 +38,13 @@ After installing, navigate to the project directory and run
 ## Compiling and Running
 
 Run the cheker, target functions must located be in `file.c`
-<!-- CFG: -->
+Standard Tarjan's:
     make countCFG
     make run-countCFG
+
+Custom Cycle Tarjan's:
+    make countCFGnested
+    make run-countCFGnested
 
 <!-- AST (naiive aproach):
 
