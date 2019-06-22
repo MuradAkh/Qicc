@@ -2,7 +2,7 @@ const assert = require('assert');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
-const cillyCommand = (filename, progname) => `cilly --gcc=/usr/bin/gcc-6 --load=_build/${progname}.cmxs test/${filename}.c`
+const cillyCommand = (filename, progname) => `cilly --gcc=/usr/bin/gcc-6 --load=_build/src/${progname}.cmxs test/${filename}.c`
 
 const parse = (stderr) => {
 
