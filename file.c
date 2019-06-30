@@ -6,7 +6,6 @@ int main(){
       int j = 1;
       if(!i) break;
       while(!j){
-        int x = 0;
       }
     }
   }

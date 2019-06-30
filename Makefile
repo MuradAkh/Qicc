@@ -21,6 +21,7 @@ run-countCFGnested: countCFGnested
 
 run-extract: extract
 		cilly --gcc=/usr/bin/gcc-6 --save-temps --load=_build/src/extract.cmxs  file.c 
+		cat file.cil.c | grep -v '^#line' > output.c
 
 clean:
 	rm -rf _build

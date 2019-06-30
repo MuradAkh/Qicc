@@ -6,6 +6,7 @@ open Cil
 open Feature (* XXX you need to open the Feature module *)
 open Printf
 open Tututil
+open Pretty
 
 exception TarjanMe of string 
 
@@ -29,8 +30,7 @@ let unoption = function
 class prepFun a = object(self)
   inherit nopCilVisitor
 
-  method vblock s = match s with
-  | _ -> dumpStmt defaultCilPrinter stdout 1 a; s.bstmts <- [a]; SkipChildren;
+  method vblock s =  s.bstmts <- [a]; SkipChildren;
 end
 
 let newfunname _ = 
@@ -38,18 +38,28 @@ let newfunname _ =
     "newfun" ^ string_of_int !newfuncount
 
 
-let newfun a = 
+let newfun fsmt exprs = 
+
+ 
+  let genTypes expr = begin match expr with 
+    | Lval(lh, off) -> begin 
+        match lh with 
+        | Var(info) -> [info.vname, info.vtype];
+        | Mem(exp) -> [];
+    end;
+    | _ -> [];
+  end in  
+
+  let typelists = (List.fold_left (fun a b -> a @ b) [] (List.map genTypes exprs)) in
+
   let fdec = emptyFunction (newfunname ()) in
-  setFunctionTypeMakeFormals fdec (mkFunTyp voidType ["x", intType]);
+  setFunctionTypeMakeFormals fdec (mkFunTyp voidType typelists);
   let func = GFun(fdec, ({line= -1; file= "file.c"; byte= -1})) in   
-  ignore(visitCilGlobal (new prepFun a) func);
+  ignore(visitCilGlobal (new prepFun fsmt) func);
   dumpGlobal defaultCilPrinter stdout func;
   
   newfuns := func :: !newfuns;
   func
-
-
-
 
 class countLocalCFG max = object(self)
     val ids = Array.make (max+1) (-1)
@@ -179,23 +189,28 @@ class findLoops = object(self)
 end
 
 
-(* class allExpr = object(self)
+class allExpr exprs = object(self)
   inherit nopCilVisitor
 
-  val exprs = ref []
 
-  method getExprs _ = !exprs
+  (* method getExprs (_: unit) = !exprs *)
 
-
-  method vexpr s =
-    if(not (List.mem s !exprs)) then begin  
-        exprs := s :: !exprs;
-    end;
+  method vexpr s = match s with 
+    | Lval(_) -> begin 
+        if(not (List.mem s !exprs)) then begin  
+            exprs := s :: !exprs;
+        end;
     DoChildren;
+    end
+    | _ -> DoChildren;
 
 end
 
- *)
+let getExprs stmt = 
+    let exprs = ref [] in
+    let vstr = (new allExpr exprs) in 
+    ignore(visitCilStmt vstr stmt); 
+    exprs;
 
 
 class extractMLC = object(self)
@@ -206,9 +221,12 @@ class extractMLC = object(self)
     | stmt -> begin 
             if(List.mem s.sid !locals) then begin 
                 let action item = begin
-                    let x = newfun item in begin
+                    (* List.iter (fun a -> fprint stdout 10 (printExp defaultCilPrinter () a)) !(getExprs s);
+                    List.iter (fun a -> print_endline "AAAAAAA") !(getExprs s); *)
+                    let exprs = !(getExprs s) in
+                    let x = newfun item exprs in begin
                     match x with  
-                    | GFun(fdec, loc) -> (i2s (Call(None, v2e (fdec.svar), [], locUnknown)));
+                    | GFun(fdec, loc) -> (i2s (Call(None, v2e (fdec.svar), exprs, locUnknown)));
                     | _ -> item;
                     end
                 end in
