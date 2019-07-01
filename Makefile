@@ -25,4 +25,4 @@ run-extract: extract
 
 clean:
 	rm -rf _build
-	rm a.out file.cil.c file.cil.i file.i file.o
+	rm a.out file.cil.c file.cil.i file.i file.o output.c

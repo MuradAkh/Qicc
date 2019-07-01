@@ -56,7 +56,6 @@ let newfun fsmt exprs =
   setFunctionTypeMakeFormals fdec (mkFunTyp voidType typelists);
   let func = GFun(fdec, ({line= -1; file= "file.c"; byte= -1})) in   
   ignore(visitCilGlobal (new prepFun fsmt) func);
-  dumpGlobal defaultCilPrinter stdout func;
   
   newfuns := func :: !newfuns;
   func
@@ -190,19 +189,74 @@ end
 
 
 class allExpr exprs = object(self)
-  inherit nopCilVisitor
+    inherit nopCilVisitor
+    val names = ref []
 
 
-  (* method getExprs (_: unit) = !exprs *)
+    method vexpr s = match s with 
+    | Lval(lh, off)  -> begin match lh with 
+        | Var(info) ->             
+            
+            let cpy = begin match info.vtype with 
+                | TPtr(_, _) -> info;
+                | _ -> let c = copyVarinfo info info.vname in c.vtype <- TPtr(info.vtype, []); c;
+            end in
 
-  method vexpr s = match s with 
-    | Lval(_) -> begin 
-        if(not (List.mem s !exprs)) then begin  
-            exprs := s :: !exprs;
-        end;
-    DoChildren;
-    end
+
+            let found = Lval(Var(cpy), off) in
+
+            if(not (List.mem info.vname !names)) then begin   
+                names :=  info.vname :: !names;       
+                exprs :=  found :: !exprs;
+            end;
+            ChangeTo(Lval((Mem(Lval(lh, off)), off)));
+
+        | _ ->  DoChildren; end
+
+    | AddrOf(lh, off) ->         
+        begin match lh with         
+        | Var(info) ->          
+
+             let cpy = begin match info.vtype with 
+                | TPtr(t, _) -> let c = copyVarinfo info info.vname in c.vtype <- t; c;
+                | _ -> info;
+            end in
+           
+            let found = Lval(Var(cpy), off) in
+
+            if(not (List.mem info.vname !names)) then begin   
+                names :=  info.vname :: !names;       
+                exprs :=  found :: !exprs;
+            end;
+            ChangeTo(Lval(Var(cpy), off));
+
+       | _ ->  DoChildren; end
     | _ -> DoChildren;
+
+    method vinst s = match s with 
+    | Set((lh, off), r1, r2) -> begin match lh with 
+        | Var(info)  -> 
+            
+            let cpy = begin match info.vtype with 
+                | TPtr(_, _) -> info;
+                | _ -> let c = copyVarinfo info info.vname in c.vtype <- TPtr(info.vtype, []); c;
+            end in
+
+
+            let found = Lval(Var(cpy), off) in
+
+
+              if(not (List.mem info.vname !names)) then begin   
+                names :=  info.vname :: !names;       
+                exprs :=  found :: !exprs;
+            end;
+
+            ChangeTo [Set((Mem(Lval(lh, off)), off), r1, r2)];
+
+        (* | _ -> exprs := Lval(lh, off) :: !exprs ; DoChildren; end *)
+        | _ ->  DoChildren; end
+    | _ -> DoChildren;
+
 
 end
 
@@ -225,8 +279,28 @@ class extractMLC = object(self)
                     List.iter (fun a -> print_endline "AAAAAAA") !(getExprs s); *)
                     let exprs = !(getExprs s) in
                     let x = newfun item exprs in begin
+                 
+
+                    let params = begin 
+                        let toparam p = begin match p with 
+                            | Lval (lh, off) -> begin match lh with 
+                                | Var(info) -> begin 
+                                    match info.vtype with 
+                                    | TPtr(_, _) -> [AddrOf(lh, off)]
+                                    | _ -> []
+                                end;
+                                | _ -> [];
+                            end; 
+                            | _  -> [];
+                        end in
+                        
+
+                        let lsts = List.map toparam exprs in
+                        List.fold_left (fun a b -> a @ b) [] lsts;          
+                    end in
+
                     match x with  
-                    | GFun(fdec, loc) -> (i2s (Call(None, v2e (fdec.svar), exprs, locUnknown)));
+                    | GFun(fdec, loc) -> (i2s (Call(None,v2e (fdec.svar), params, locUnknown)));
                     | _ -> item;
                     end
                 end in
