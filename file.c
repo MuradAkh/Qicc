@@ -1,14 +1,18 @@
+int hello(int i) {return 1;}
+
 int main(){
   int x = 0;
+  int j = 0;
   while(x){
-    int i = 1;
-    int j = j;
+    int i = 0;
+    i = hello(i + i);
+    i = j;
     while(!i){
-      int j = 1;
-      if(!i) break;
-      while(!i){
-        x = -1;
-      }
+     for (int i = 0; i < 3; i++)
+     {
+       /* code */
+     }
+     
     }
   }
 
