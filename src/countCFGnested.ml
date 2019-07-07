@@ -152,6 +152,8 @@ class countCalls = object(self)
 end
 
 
+
+
 (* XXX Cil.featureDescr is now Feature.t *)
 let feature : Feature.t = {
     fd_name = "countCalls";
@@ -170,7 +172,14 @@ let feature : Feature.t = {
     );
 
     fd_post_check = true;
-  } 
+  }
+
+type respones = {locals: int list ref; nonlocals: int list ref}
+
+let getLoops f = begin
+    visitCilFileSameGlobals (new countCalls) f;
+    {locals = locals; nonlocals = nonlocals}
+end
 
 (* XXX you need to register each feature using Feature.register. *)
 let () = Feature.register feature
