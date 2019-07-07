@@ -24,5 +24,4 @@ run-extract: extract
 		cat file.cil.c | grep -v '^#line' > output.c
 
 clean:
-	rm -rf _build
 	rm a.out file.cil.c file.cil.i file.i file.o output.c

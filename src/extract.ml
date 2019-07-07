@@ -45,7 +45,7 @@ let newfun fsmt exprs =
     | Lval(lh, off) -> begin 
         match lh with 
         | Var(info) -> [info.vname, info.vtype];
-        | Mem(exp) -> [];
+        | Mem(exp) -> print_endline "BAD GENTYPE"; [];
     end;
     | _ -> [];
   end in  
@@ -188,56 +188,65 @@ class findLoops = object(self)
 end
 
 
+let rec evalexpr names exprs item = begin match item with 
+        | BinOp(binopp, e1, e2, t) -> BinOp(binopp, evalexpr names exprs e1, evalexpr names exprs e2, t)
+        | Lval(lh, off)  -> begin match lh with 
+            | Var(info) ->             
+                if(isFunctionType info.vtype) then item
+                else begin
+                let cpy = begin match info.vtype with 
+                    | TPtr(_, _) -> info;
+                    | _ -> let c = copyVarinfo info info.vname in c.vtype <- TPtr(info.vtype, []); c;
+                end in
+
+
+                let found = Lval(Var(cpy), off) in
+
+                if(not (List.mem info.vname !names)) then begin   
+                    names :=  info.vname :: !names;       
+                    exprs :=  found :: !exprs;
+                end;
+                Lval((Mem(Lval(Var(cpy), off)), off)); end;
+
+            | _ ->  item; end
+
+        | AddrOf(lh, off) ->         
+            begin match lh with         
+            | Var(info) ->          
+
+                let cpy = begin match info.vtype with 
+                    | TPtr(t, _) -> let c = copyVarinfo info info.vname in c.vtype <- t; c;
+                    | _ -> info;
+                end in
+            
+                let found = Lval(Var(info), off) in
+
+                if(not (List.mem info.vname !names)) then begin   
+                    names :=  info.vname :: !names;       
+                    exprs :=  found :: !exprs;
+                end;
+                Lval(Var(cpy), off);
+
+            | _ ->  item; end
+        | _ -> item;
+    end
+
+
 class allExpr exprs = object(self)
     inherit nopCilVisitor
     val names = ref []
 
 
-    method vexpr s = match s with 
-    | Lval(lh, off)  -> begin match lh with 
-        | Var(info) ->             
-            
-            let cpy = begin match info.vtype with 
-                | TPtr(_, _) -> info;
-                | _ -> let c = copyVarinfo info info.vname in c.vtype <- TPtr(info.vtype, []); c;
-            end in
+    method vexpr s = begin 
+        ChangeDoChildrenPost(s, (evalexpr names exprs));
+    end;
 
-
-            let found = Lval(Var(cpy), off) in
-
-            if(not (List.mem info.vname !names)) then begin   
-                names :=  info.vname :: !names;       
-                exprs :=  found :: !exprs;
-            end;
-            ChangeTo(Lval((Mem(Lval(lh, off)), off)));
-
-        | _ ->  DoChildren; end
-
-    | AddrOf(lh, off) ->         
-        begin match lh with         
-        | Var(info) ->          
-
-             let cpy = begin match info.vtype with 
-                | TPtr(t, _) -> let c = copyVarinfo info info.vname in c.vtype <- t; c;
-                | _ -> info;
-            end in
-           
-            let found = Lval(Var(cpy), off) in
-
-            if(not (List.mem info.vname !names)) then begin   
-                names :=  info.vname :: !names;       
-                exprs :=  found :: !exprs;
-            end;
-            ChangeTo(Lval(Var(cpy), off));
-
-       | _ ->  DoChildren; end
-    | _ -> DoChildren;
-
-    method vinst s = match s with 
-    | Set((lh, off), r1, r2) -> begin match lh with 
+    method vinst s = begin 
+    match s with 
+    | Set((lh, off), r1, loc) -> begin match lh with 
         | Var(info)  -> 
             
-            let cpy = begin match info.vtype with 
+            (* let cpy = begin match info.vtype with 
                 | TPtr(_, _) -> info;
                 | _ -> let c = copyVarinfo info info.vname in c.vtype <- TPtr(info.vtype, []); c;
             end in
@@ -245,17 +254,38 @@ class allExpr exprs = object(self)
 
             let found = Lval(Var(cpy), off) in
 
-
-              if(not (List.mem info.vname !names)) then begin   
+            if(not (List.mem info.vname !names)) then begin   
                 names :=  info.vname :: !names;       
                 exprs :=  found :: !exprs;
-            end;
+            end;  *)
 
-            ChangeTo [Set((Mem(Lval(lh, off)), off), r1, r2)];
+            (* let rightside  = match r1 with 
+                | Lval(rh, ro) -> Lval(mkMem r1 ro);
+                | _ -> r1;
+            in *)
+
+            let evaluated = evalexpr names exprs (Lval((lh, off))) in
+            begin match evaluated with 
+            | Lval(lh, off) -> ChangeTo [Set((lh, off), evalexpr names exprs r1, loc)];
+            | _ -> DoChildren; end;
+
+            (* ChangeTo [Set((Mem(Lval(lh, off)), off), evalexpr names exprs r1, loc)]; *)
 
         (* | _ -> exprs := Lval(lh, off) :: !exprs ; DoChildren; end *)
         | _ ->  DoChildren; end
+    | Call(toset, gfun, params, loc) -> begin
+        match toset with 
+        | Some((lh, off)) -> begin 
+            let evaluated = evalexpr names exprs (Lval((lh, off))) in
+            match evaluated with 
+            | Lval(lh, off) -> ChangeTo [Call(Some(lh, off), gfun, params, loc)];
+            | _ -> DoChildren;
+         end;
+        | _ -> DoChildren;
+
+    end;
     | _ -> DoChildren;
+    end;
 
 
 end
