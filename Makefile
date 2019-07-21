@@ -1,10 +1,13 @@
 countAST: src/countAST.ml
 	ocamlbuild -Is src -use-ocamlfind -package cil countAST.cma countAST.cmxs
 
-extract: src/countAST.ml
-	ocamlbuild -Is src -use-ocamlfind -package cil extract.cma extract.cmxs
+extractLoop: src/countAST.ml
+	ocamlbuild -Is src -use-ocamlfind -package cil extractLoop.cma extractLoop.cmxs
 
-countCFG: src/countCFG.ml
+extractMLC: src/countAST.ml
+	ocamlbuild -Is src -use-ocamlfind -package cil extractMLC.cma extractMLC.cmxs
+
+countCFG: src/countCFG.ml`
 	ocamlbuild -Is src -use-ocamlfind -package cil countCFG.cma countCFG.cmxs
 
 countCFGnested: src/countCFGnested.ml
@@ -19,8 +22,12 @@ run-countCFG: countCFG
 run-countCFGnested: countCFGnested
 	cilly --gcc=/usr/bin/gcc-6 --load=_build/src/countCFGnested.cmxs  file.c 
 
-run-extract: extract
-		cilly --gcc=/usr/bin/gcc-6 --save-temps --load=_build/src/extract.cmxs  file.c 
+run-extractLoop: extractLoop
+		cilly --gcc=/usr/bin/gcc-6 --save-temps --load=_build/src/extractLoop.cmxs  file.c 
+		cat file.cil.c | grep -v '^#line' > output.c
+
+run-extractMLC: extractMLC
+		cilly --gcc=/usr/bin/gcc-6 --save-temps --load=_build/src/extractMLC.cmxs  file.c 
 		cat file.cil.c | grep -v '^#line' > output.c
 
 clean:

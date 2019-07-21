@@ -118,6 +118,7 @@ class countLocalCFG  max = object(self)
               let checkdfs s = if (not loopvisited.(s.sid)) then begin
                  if (self#part_of_loop loopid s.sid) then dfs s 
                  else if (ids.(y.sid) != loopid) then incr exits; (*not root of loop*)
+                 (* y has an exit out of the loop, the exit being S. *)
               
               end in
 
