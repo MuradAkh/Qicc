@@ -24,11 +24,11 @@ run-countCFGnested: countCFGnested
 
 run-extractLoop: extractLoop
 		cilly --gcc=/usr/bin/gcc-6 --save-temps --load=_build/src/extractLoop.cmxs  file.c 
-		cat file.cil.c | grep -v '^#line' > output.c
+		cat file.cil.c | grep -v '^#line' >| output.c
 
 run-extractMLC: extractMLC
 		cilly --gcc=/usr/bin/gcc-6 --save-temps --load=_build/src/extractMLC.cmxs  file.c 
-		cat file.cil.c | grep -v '^#line' > output.c
+		cat file.cil.c | grep -v '^#line' >| output.c
 
 clean:
 	rm a.out file.cil.c file.cil.i file.i file.o output.c
