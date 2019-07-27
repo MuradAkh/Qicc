@@ -24,11 +24,11 @@ let printint i = (print_endline (string_of_int i));;
 
 let pointer_depth = ref FuncVars.empty
 
-let getdepth (funname : string) (varname: string) = begin 
+let getdepth (funname : string) (varname: string) : int = begin 
     FuncVars.find (String.concat funname ["_____"; varname]) !pointer_depth;
 end
 
-let setdepth (funname : string) (varname: string) (depth: int) = begin 
+let setdepth (funname : string) (varname: string) (depth: int) : unit = begin 
     pointer_depth := FuncVars.add (String.concat funname ["_____"; varname]) depth !pointer_depth;
 end
 
@@ -51,9 +51,7 @@ let rec incrdepth lval by = begin
 end
 
 let rec decrdepth lval by = begin 
-    match by with 
-    | 0 -> lval
-    | _ -> (Mem(mkAddrOf (decrdepth lval (by-1))), NoOffset)
+    mkAddrOf lval;
 end
 
 exception NotAFunction of string
@@ -81,9 +79,14 @@ let newfunname _ =
     "newfun" ^ string_of_int !newfuncount
 
 
+let checkprintdepth ingo = 
+    let d = checkdepth ingo in
+    print_endline (string_of_int d);
+    d;
+
 class registerVariables = object(self)
     inherit nopCilVisitor
-    method vvrbl info  =  let funame = getfunname !currentGlobal in setdepth funame info.vname (checkdepth info); DoChildren;
+    method vvrbl info  =  let funame = getfunname !currentGlobal in setdepth funame info.vname (checkprintdepth info); DoChildren;
 
 end
 
@@ -114,6 +117,8 @@ let newfun fsmt exprs =
 let rec saveexpr (exprs: funcvar VarTypes.t ref) isset item: unit = begin 
         let save info found = (* Save the expression, to be added to params*)
             let depth = checkdepth info + isset in
+            print_endline "DEPTH";
+            print_endline info.vname;
             
             let cpy = begin match info.vtype with 
                     | _ when isset = 0 -> info;
@@ -160,12 +165,25 @@ let rec modexpr item = begin
             | Var(info) ->             
                 if(isFunctionType info.vtype) then item (*Don't care about functions (assume are global) *)
                 else begin
-                    let cpy = begin match info.vtype with 
-                        | TPtr(_, _) -> info;
-                        | _ -> let c = copyVarinfo info info.vname in c.vtype <- TPtr(info.vtype, []); c;
-                    end in
 
-                    Lval((Mem(Lval(Var(cpy), off)), off));
+
+                let localDepth = getdepth (getfunname !currentGlobal) info.vname in
+                
+                let fixed : exp = begin 
+                    let diff = localDepth - (checkdepth info) in
+                    match diff with
+                    | _ when diff < 0 -> decrdepth (lh,off) diff;
+                    | _ when diff > 0 -> Lval(incrdepth (lh,off) diff);
+                    | _ -> Lval(lh,off);
+                end in
+
+(* 
+                let cpy = begin match info.vtype with 
+                    | TPtr(_, _) -> info;
+                    | _ -> let c = copyVarinfo info info.vname in c.vtype <- TPtr(info.vtype, []); c;
+                end in *)
+
+                    fixed
                  end;
             | _ ->  item; end
         | _ -> item;
@@ -265,28 +283,32 @@ class extractMLC locals = object(self)
                         !out;
                     end in                 
 
+                    let thisfunname =  (getfunname !currentGlobal) in
                     let x = newfun replacement exprs in begin
-                    VarTypes.iter (fun a b -> setdepth (getfunname x) b.info.vname b.depth) usages;                  
 
+                    VarTypes.iter (fun a b -> setdepth (getfunname x) b.info.vname b.depth) usages;                  
                  
                     
                     let params = begin 
                         let toparam p = begin match p with 
                             | Lval (lh, off) -> begin match lh with 
                                 | Var(info) -> begin 
-                                    let localDepth = getdepth (getfunname !currentGlobal) info.vname in
+                                    
+                                    let localDepth = getdepth thisfunname info.vname in
                                     let nextDepth = getdepth (getfunname x) info.vname in
                                     
-                                    let fixed : lval = begin 
+                                    let fixed : exp = begin 
                                         let diff = localDepth - nextDepth in
+                                        print_endline "DIFF";
+                                        print_endline (string_of_int diff);
                                         match diff with
                                         | _ when diff < 0 -> decrdepth (lh,off) diff;
-                                        | _ when diff > 0 -> incrdepth (lh,off) diff;
-                                        | _ -> (lh,off);
+                                        | _ when diff > 0 -> Lval(incrdepth (lh,off) diff);
+                                        | _ -> Lval(lh,off);
                                     end in
 
 
-                                    [Lval(fixed)]
+                                    [fixed]
                                 end;
                                 | _ -> [];
                             end; 
@@ -326,7 +348,9 @@ let feature : Feature.t = {
     
 
       let res = getLoops f in
+      visitCilFileSameGlobals (new registerVariables) f;
       visitCilFileSameGlobals (new extractMLC res.locals) f;
+    
 
       let declarefuns func = begin match func with
         | GFun(fdec, loc) -> ignore(findOrCreateFunc f fdec.svar.vname fdec.svar.vtype);
