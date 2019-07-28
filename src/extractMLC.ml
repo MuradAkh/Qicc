@@ -15,6 +15,7 @@ type funcvar = {
 }
 module FuncVars = Map.Make(String)
 module VarTypes = Map.Make(String)
+module NewCalls = Set.Make(struct type t = exp let compare = compare end)
 
 let newfuncount = ref 0
 let newfuns = ref []
@@ -23,12 +24,14 @@ let newfuns = ref []
 let printint i = (print_endline (string_of_int i));;
 
 let pointer_depth = ref FuncVars.empty
+let new_calls = ref NewCalls.empty
 
 let getdepth (funname : string) (varname: string) : int = begin 
     FuncVars.find (String.concat funname ["_____"; varname]) !pointer_depth;
 end
 
 let setdepth (funname : string) (varname: string) (depth: int) : unit = begin 
+    print_endline varname;
     pointer_depth := FuncVars.add (String.concat funname ["_____"; varname]) depth !pointer_depth;
 end
 
@@ -81,7 +84,7 @@ let newfunname _ =
 
 let checkprintdepth ingo = 
     let d = checkdepth ingo in
-    print_endline (string_of_int d);
+    (* print_endline (string_of_int d); *)
     d;
 
 class registerVariables = object(self)
@@ -117,8 +120,8 @@ let newfun fsmt exprs =
 let rec saveexpr (exprs: funcvar VarTypes.t ref) isset item: unit = begin 
         let save info found = (* Save the expression, to be added to params*)
             let depth = checkdepth info + isset in
-            print_endline "DEPTH";
-            print_endline info.vname;
+            (* print_endline "DEPTH"; *)
+            (* print_endline info.vname; *)
             
             let cpy = begin match info.vtype with 
                     | _ when isset = 0 -> info;
@@ -128,7 +131,7 @@ let rec saveexpr (exprs: funcvar VarTypes.t ref) isset item: unit = begin
 
             let wasdepth = begin 
                 try (VarTypes.find info.vname !exprs).depth
-                with Not_found -> 0
+                with Not_found -> -1
             end in
 
             if(depth > wasdepth) then exprs := VarTypes.add info.vname {info=cpy; depth=depth} !exprs
@@ -193,7 +196,6 @@ let rec modexpr item = begin
 class allExpr opt call set = object(self)
     inherit nopCilVisitor
     
-    method vexpr = opt;
 
     method vinst s = begin 
     match s with 
@@ -211,6 +213,9 @@ class allExpr opt call set = object(self)
     end;
     | _ -> DoChildren;
     end;
+
+    method vexpr = opt;
+
 end
 
 let getExprs stmt = begin
@@ -248,14 +253,22 @@ let modExprs stmt = begin
     end in 
 
     let call lh off gfun params loc = begin 
+        print_endline "exp";
+        (* fprint stdout 10 (printExp defaultCilPrinter () gfun);  *)
         let evaluated = modexpr (Lval((lh, off))) in
-            match evaluated with 
-            | Lval(lh, off) -> ChangeTo [Call(Some(lh, off), gfun, List.map (fun a -> modexpr a) params, loc)];
-            | _ -> DoChildren;    
+            if(NewCalls.mem gfun !new_calls) then DoChildren
+            
+            else begin 
+
+                match evaluated with 
+                | Lval(lh, off) -> ChangeTo [Call(Some(lh, off), gfun, List.map (fun a -> modexpr a) params, loc)];
+                | _ -> DoChildren;    
+
+            end
     end in
 
     let opt s = begin 
-            ChangeDoChildrenPost(s, modexpr);
+          DoChildren;
     end in
 
     let vstr = (new allExpr opt call set) in 
@@ -299,8 +312,8 @@ class extractMLC locals = object(self)
                                     
                                     let fixed : exp = begin 
                                         let diff = localDepth - nextDepth in
-                                        print_endline "DIFF";
-                                        print_endline (string_of_int diff);
+                                        (* print_endline "DIFF"; *)
+                                        (* print_endline (string_of_int diff); *)
                                         match diff with
                                         | _ when diff < 0 -> decrdepth (lh,off) diff;
                                         | _ when diff > 0 -> Lval(incrdepth (lh,off) diff);
@@ -324,7 +337,10 @@ class extractMLC locals = object(self)
                     | GFun(fdec, loc) -> begin
                         ignore(visitCilGlobal (new extractMLC locals) x);
                         modExprs x;
-                        mkStmt (Loop(mkBlock (List.hd blk.bstmts :: [(i2s (Call(None,v2e (fdec.svar), params, locUnknown)))]), l1, l2, l3));
+                        let call = v2e fdec.svar in
+                        new_calls := NewCalls.add call !new_calls;
+                        List.iter (fun a -> new_calls := NewCalls.add a !new_calls) params;
+                        mkStmt (Loop(mkBlock (List.hd blk.bstmts :: [(i2s (Call(None,call, params, locUnknown)))]), l1, l2, l3));
                     end
                     | _ ->  print_endline "FFFFFFF"; item;
                     end
