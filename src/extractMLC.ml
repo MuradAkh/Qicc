@@ -276,6 +276,28 @@ let modExprs stmt = begin
 end;;
 
 
+class hasBreak out = object(self) 
+    inherit nopCilVisitor
+
+    method vstmt s = begin match s.skind with 
+        | Break(_) -> (out := true; SkipChildren)
+        | _ -> DoChildren;
+
+    end
+
+end
+
+
+let checkbreak statement = begin
+    let out = ref false in
+    ignore (visitCilStmt (new hasBreak out) statement);
+    !out
+end 
+
+
+
+
+
 class extractMLC locals = object(self)
 
   inherit nopCilVisitor
@@ -285,9 +307,18 @@ class extractMLC locals = object(self)
           
             if(List.mem s.sid !locals) then begin 
                 let action item = begin
+
+                    (* Has to be done asap due to a bug in CIL. This will be broken once a new visitor is called*)
+                    let thisfunname =  (getfunname !currentGlobal) in 
+
                     (* List.iter (fun a -> fprint stdout 10 (printExp defaultCilPrinter () a)) !(getExprs s);
                     List.iter (fun a -> print_endline "AAAAAAA") !(getExprs s); *)
-                    let replacement = (mkStmt (Block({battrs=blk.battrs; bstmts= List.tl blk.bstmts}))) in
+                    
+
+                    let first_break = checkbreak (List.hd blk.bstmts) in
+                    let rstatements = if(first_break) then List.tl blk.bstmts else blk.bstmts in
+
+                    let replacement = (mkStmt (Block({battrs=blk.battrs; bstmts= rstatements}))) in
                     let usages = !(getExprs replacement) in
                     let exprs = begin                                        
                         let out = ref [] in
@@ -296,7 +327,6 @@ class extractMLC locals = object(self)
                         !out;
                     end in                 
 
-                    let thisfunname =  (getfunname !currentGlobal) in
                     let x = newfun replacement exprs in begin
 
                     VarTypes.iter (fun a b -> setdepth (getfunname x) b.info.vname b.depth) usages;                  
@@ -340,7 +370,10 @@ class extractMLC locals = object(self)
                         let call = v2e fdec.svar in
                         new_calls := NewCalls.add call !new_calls;
                         List.iter (fun a -> new_calls := NewCalls.add a !new_calls) params;
-                        mkStmt (Loop(mkBlock (List.hd blk.bstmts :: [(i2s (Call(None,call, params, locUnknown)))]), l1, l2, l3));
+
+                        let head_replace = if(first_break) then [List.hd blk.bstmts] else [] in
+
+                        mkStmt (Loop(mkBlock (head_replace @ [(i2s (Call(None,call, params, locUnknown)))]), l1, l2, l3));
                     end
                     | _ ->  print_endline "FFFFFFF"; item;
                     end
