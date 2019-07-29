@@ -112,12 +112,21 @@ class countLocalCFG  max = object(self)
             let loopvisited = Array.make (max+1) false in
             let exits = ref 0 in
             let loopid = ids.(x.sid) in
+            let midexit = ref false in
 
-            let rec dfs y = begin
+            let checkmidexit passed = begin
+                if(List.length passed > 1) then midexit := true;
+                print_endline (string_of_int (List.length passed))
+
+
+            end in
+
+
+            let rec dfs y passed = begin
               loopvisited.(y.sid) <- true;  
               let checkdfs s = if (not loopvisited.(s.sid)) then begin
-                 if (self#part_of_loop loopid s.sid) then dfs s 
-                 else if (ids.(y.sid) != loopid) then incr exits; (*not root of loop*)
+                 if (self#part_of_loop loopid s.sid) then dfs s (s :: passed)
+                 else if (ids.(y.sid) != loopid) then (incr exits; checkmidexit passed)(*not root of loop*)
                  (* y has an exit out of the loop, the exit being S. *)
               
               end in
@@ -125,8 +134,8 @@ class countLocalCFG  max = object(self)
               List.iter checkdfs y.succs
             end in
 
-            dfs x;            
-            if(!exits > 1) then begin incr loop_data.nonlocal;  loop_data.nonlocals :=  x.sid :: !(loop_data.nonlocals) end  
+            dfs x [];            
+            if(!exits > 1 || !midexit) then begin incr loop_data.nonlocal;  loop_data.nonlocals :=  x.sid :: !(loop_data.nonlocals) end  
             else loop_data.locals :=  x.sid :: !(loop_data.locals)
 
       end in

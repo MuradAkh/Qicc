@@ -268,7 +268,7 @@ let modExprs stmt = begin
     end in
 
     let opt s = begin 
-          DoChildren;
+          ChangeTo(modexpr s)
     end in
 
     let vstr = (new allExpr opt call set) in 
