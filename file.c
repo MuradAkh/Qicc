@@ -1,38 +1,42 @@
 int hello(int i) { return i; }
 #define MAEK(x) x;
 
-int main(){
-  int x  = 1;
+int main()
+{
+  int x = 1;
   int z = -1;
   int *y = &z;
   while (x)
   {
-    hello(*y);
-    while (*y)
+    x = z;
+    hello(z);
+
+    while (z)
     {
-      hello(*y);
-      x = 2;
-      *y = 2;
+      *y = x;
+      x = 1;
 
       while(x){
-        if(*y){
-          hello(*y);
-        }
-        hello(*y);
-        *y = x;
+        hello(x);
       }
-  
-    }
-    
-  }
 
-  while (x - z)
-  {
-    hello(1);
+      while(x){
+        while(z){
+          hello(x);
+        }
+      }
+
+
+      while (1)
+      {
+        hello(*y);
+
+        if (*y)
+          break;
+        hello(x);
+      }
+    }
   }
-  
-  
-  
 
   return 0;
 }
