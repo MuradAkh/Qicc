@@ -13,6 +13,13 @@ countCFG: src/countCFG.ml`
 countCFGnested: src/countCFGnested.ml
 	ocamlbuild -Is src -use-ocamlfind -package cil countCFGnested.cma countCFGnested.cmxs
 
+
+findFuncs: src/findFuncs.ml
+	ocamlbuild -Is src -use-ocamlfind -package cil findFuncs.cma findFuncs.cmxs
+
+run-findFuncs: 
+	cilly --gcc=/usr/bin/gcc-6 --save-temps --load=_build/src/findFuncs.cmxs  output.c 
+
 run-countAST: countAST
 	cilly --gcc=/usr/bin/gcc-6 --save-temps --load=_build/src/countAST.cmxs  file.c 
 
