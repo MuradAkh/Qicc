@@ -102,7 +102,6 @@ class countLocalCFG  max = object(self)
         List.fold_left (fun a b -> a || b) false bools;
 
     method countnonlocal stmt = 
-    (* Array.iter (fun lst -> List.iter (fun it -> (print_endline (string_of_int it))) !lst) loops; *)
 
 
       if(not tarjaned) then raise (TarjanMe "error: have to perform tarjan before counting non local");
@@ -116,7 +115,7 @@ class countLocalCFG  max = object(self)
 
             let checkmidexit passed = begin
                 if(List.length passed > 1) then midexit := true;
-                print_endline (string_of_int (List.length passed))
+                (* print_endline (string_of_int (List.length passed)) *)
 
 
             end in

@@ -19,6 +19,7 @@ module NewCalls = Set.Make(struct type t = exp let compare = compare end)
 
 let newfuncount = ref 0
 let newfuns = ref []
+let funcparents = ref []
 
 
 let printint i = (print_endline (string_of_int i));;
@@ -26,16 +27,15 @@ let printint i = (print_endline (string_of_int i));;
 let pointer_depth = ref FuncVars.empty
 let new_calls = ref NewCalls.empty
 
-let getdepth (funname : string) (varname: string) : int = begin 
+let getdepth (funname : string) (varname: string) : int = ( 
     FuncVars.find (String.concat funname ["_____"; varname]) !pointer_depth;
-end
+)
 
-let setdepth (funname : string) (varname: string) (depth: int) : unit = begin 
-    print_endline varname;
+let setdepth (funname : string) (varname: string) (depth: int) : unit = ( 
     pointer_depth := FuncVars.add (String.concat funname ["_____"; varname]) depth !pointer_depth;
-end
+)
 
-let checkdepth (vinfo : varinfo) = begin 
+let checkdepth (vinfo : varinfo) = ( 
 
     let rec check tp = 
         match tp with 
@@ -44,26 +44,26 @@ let checkdepth (vinfo : varinfo) = begin
     in
 
     check vinfo.vtype
-end
+)
 
 
-let rec incrdepth lval by = begin 
+let rec incrdepth lval by = ( 
    match by with 
     | 0 -> lval
     | _ -> (Mem(Lval (incrdepth lval (by-1))), NoOffset)
-end
+)
 
-let rec decrdepth lval by = begin 
+let rec decrdepth lval by = ( 
     mkAddrOf lval;
-end
+)
 
 exception NotAFunction of string
 
-let getfunname = begin function
+let getfunname = ( function
     | GFun(fd, _) -> fd.svar.vname;
     | _ -> raise ( NotAFunction "Attempted to visit a statement not within a function")
 
-end
+)
 
 
 let unoption = function
@@ -82,28 +82,23 @@ let newfunname _ =
     "newfun" ^ string_of_int !newfuncount
 
 
-let checkprintdepth ingo = 
-    let d = checkdepth ingo in
-    (* print_endline (string_of_int d); *)
-    d;
-
 class registerVariables = object(self)
     inherit nopCilVisitor
-    method vvrbl info  =  let funame = getfunname !currentGlobal in setdepth funame info.vname (checkprintdepth info); DoChildren;
+    method vvrbl info  =  let funame = getfunname !currentGlobal in setdepth funame info.vname (checkdepth info); DoChildren;
 
 end
 
 let newfun fsmt exprs = 
 
  
-  let genTypes expr = begin match expr with 
-    | Lval(lh, off) -> begin 
+  let genTypes expr = ( match expr with 
+    | Lval(lh, off) -> ( 
         match lh with 
         | Var(info) -> [info.vname, info.vtype];
         | Mem(exp) -> print_endline "BAD GENTYPE"; [];
-    end;
+    );
     | _ -> [];
-  end in  
+  ) in  
 
   let typelists = (List.fold_left (fun a b -> a @ b) [] (List.map genTypes exprs)) in
 
@@ -117,22 +112,21 @@ let newfun fsmt exprs =
 
 
 
-let rec saveexpr (exprs: funcvar VarTypes.t ref) isset item: unit = begin 
+let rec saveexpr (exprs: funcvar VarTypes.t ref) isset item: unit = ( 
         let save info found = (* Save the expression, to be added to params*)
             let depth = checkdepth info + isset in
-            (* print_endline "DEPTH"; *)
-            (* print_endline info.vname; *)
+
             
-            let cpy = begin match info.vtype with 
+            let cpy = ( match info.vtype with 
                     | _ when isset = 0 -> info;
                     | _ -> let c = copyVarinfo info info.vname in c.vtype <- TPtr(info.vtype, []); c;
-            end in
+            ) in
             
 
-            let wasdepth = begin 
+            let wasdepth = ( 
                 try (VarTypes.find info.vname !exprs).depth
                 with Not_found -> -1
-            end in
+            ) in
 
             if(depth > wasdepth) then exprs := VarTypes.add info.vname {info=cpy; depth=depth} !exprs
         in
@@ -144,88 +138,82 @@ let rec saveexpr (exprs: funcvar VarTypes.t ref) isset item: unit = begin
         | Question(e1, e2, e3, typ) -> reval e1; reval e2; reval e3; 
         | BinOp(binopp, e1, e2, t) ->  reval e1; reval e2;
         | CastE(t, exp) -> reval exp;
-        | Lval(lh, off)  -> begin match lh with 
+        | Lval(lh, off)  -> ( match lh with 
             | Var(info) ->             
                 if(isFunctionType info.vtype) then () (*Don't care about functions (assume are global) *)
                 else save info (Lval(lh, off));               
 
-            | _ ->  (); end
+            | _ ->  (); )
         | _ -> ();
-    end
+    )
 
 
 
 
 
-let rec modexpr item = begin 
+let rec modexpr item = ( 
         let reval = modexpr in
         match item with 
         | UnOp(unop, exp, typ) -> UnOp(unop, reval exp, typ)
         | Question(e1, e2, e3, typ) -> Question(reval e1, reval e2, reval e3, typ)
         | BinOp(binopp, e1, e2, t) -> BinOp(binopp, reval e1, reval e2, t)
         | CastE(t, exp) -> CastE(t, reval exp)
-        | Lval(lh, off)  -> begin match lh with 
+        | Lval(lh, off)  -> ( match lh with 
             | Var(info) ->             
                 if(isFunctionType info.vtype) then item (*Don't care about functions (assume are global) *)
-                else begin
+                else (
 
 
                 let localDepth = getdepth (getfunname !currentGlobal) info.vname in
                 
-                let fixed : exp = begin 
+                let fixed : exp = ( 
                     let diff = localDepth - (checkdepth info) in
                     match diff with
                     | _ when diff < 0 -> decrdepth (lh,off) diff;
                     | _ when diff > 0 -> Lval(incrdepth (lh,off) diff);
                     | _ -> Lval(lh,off);
-                end in
-
-(* 
-                let cpy = begin match info.vtype with 
-                    | TPtr(_, _) -> info;
-                    | _ -> let c = copyVarinfo info info.vname in c.vtype <- TPtr(info.vtype, []); c;
-                end in *)
+                    ) in
 
                     fixed
-                 end;
-            | _ ->  item; end
+                 );
+            | _ ->  item; )
         | _ -> item;
-    end
+    )
 
 
 class allExpr opt call set = object(self)
     inherit nopCilVisitor
     
 
-    method vinst s = begin 
+    method vinst s = ( 
     match s with 
-    | Set((lh, off), r1, loc) -> begin match lh with 
+    | Set((lh, off), r1, loc) -> ( match lh with 
         | Var(info)  -> 
             set lh off r1 loc;
-        | _ ->  DoChildren; end (*TODO: Handle pointers*)
-    | Call(toset, gfun, params, loc) -> begin
+        | _ ->  DoChildren; ) (*TODO: Handle pointers*)
+    | Call(toset, gfun, params, loc) -> (
         match toset with 
-        | Some((lh, off)) -> begin 
+        | Some((lh, off)) -> ( 
             call lh off gfun params loc;
-         end;
+         );
         | _ -> DoChildren;
 
-    end;
+    );
     | _ -> DoChildren;
-    end;
+    );
 
     method vexpr = opt;
 
 end
 
-let getExprs stmt = begin
+let getExprs stmt = (
     let exprs = ref VarTypes.empty in
 
-    let set lh off r1 loc = begin 
+    let set lh off r1 loc = ( 
         saveexpr exprs 1 (Lval((lh, off))); 
         saveexpr exprs 0 r1;
         DoChildren;
-    end in 
+    ) in 
 
     let call lh off gfun params loc =  
         saveexpr exprs 0 (Lval((lh, off))); 
@@ -233,86 +221,80 @@ let getExprs stmt = begin
         DoChildren;
     in
 
-    let opt s = begin 
+    let opt s = ( 
         saveexpr exprs 0 s; DoChildren;
-    end in
+    ) in
 
 
     let vstr = (new allExpr opt call set) in 
     ignore(visitCilStmt vstr stmt); 
     exprs; 
-end;;
+);;
 
-let modExprs stmt = begin
+let modExprs stmt = (
 
-    let set lh off r1 loc = begin 
+    let set lh off r1 loc = ( 
         let evaluated = modexpr (Lval((lh, off))) in
             match evaluated with 
             | Lval(lh, off) -> ChangeTo [Set((lh, off), modexpr r1, loc)];
             | _ -> DoChildren; 
-    end in 
+    ) in 
 
-    let call lh off gfun params loc = begin 
-        print_endline "exp";
-        (* fprint stdout 10 (printExp defaultCilPrinter () gfun);  *)
+    let call lh off gfun params loc = ( 
         let evaluated = modexpr (Lval((lh, off))) in
             if(NewCalls.mem gfun !new_calls) then DoChildren
             
-            else begin 
+            else ( 
 
                 match evaluated with 
                 | Lval(lh, off) -> ChangeTo [Call(Some(lh, off), gfun, List.map (fun a -> modexpr a) params, loc)];
                 | _ -> DoChildren;    
 
-            end
-    end in
+            )
+    ) in
 
-    let opt s = begin 
+    let opt s = ( 
           ChangeTo(modexpr s)
-    end in
+    ) in
 
     let vstr = (new allExpr opt call set) in 
     ignore(visitCilGlobal vstr stmt); 
-end;;
+);;
 
 
 class hasBreak out = object(self) 
     inherit nopCilVisitor
 
-    method vstmt s = begin match s.skind with 
+    method vstmt s = ( match s.skind with 
         | Break(_) -> (out := true; SkipChildren)
         | _ -> DoChildren;
 
-    end
+    )
 
 end
 
 
-let checkbreak statement = begin
+let checkbreak statement = (
     let out = ref false in
     ignore (visitCilStmt (new hasBreak out) statement);
     !out
-end 
+) 
 
 
 
 
 
-class extractMLC locals = object(self)
+class extractMLC locals thisfunname= object(self)
 
   inherit nopCilVisitor
 
   method vstmt s = match s.skind with
-    | Loop(blk, l1, l2, l3) -> begin 
+    | Loop(blk, l1, l2, l3) -> ( 
           
-            if(List.mem s.sid !locals) then begin 
-                let action item = begin
+            if(List.mem s.sid !locals) then ( 
+                let action item = (
 
                     (* Has to be done asap due to a bug in CIL. This will be broken once a new visitor is called*)
-                    let thisfunname =  (getfunname !currentGlobal) in 
-
-                    (* List.iter (fun a -> fprint stdout 10 (printExp defaultCilPrinter () a)) !(getExprs s);
-                    List.iter (fun a -> print_endline "AAAAAAA") !(getExprs s); *)
                     
 
                     let first_break = checkbreak (List.hd blk.bstmts) in
@@ -320,52 +302,55 @@ class extractMLC locals = object(self)
 
                     let replacement = (mkStmt (Block({battrs=blk.battrs; bstmts= rstatements}))) in
                     let usages = !(getExprs replacement) in
-                    let exprs = begin                                        
+                    let exprs = (                                        
                         let out = ref [] in
                        
                         VarTypes.iter (fun a b -> out :=  Lval(Var(b.info), NoOffset) :: !out) usages;                  
                         !out;
-                    end in                 
+                    ) in                 
 
-                    let x = newfun replacement exprs in begin
+                    let x = newfun replacement exprs in (
+
+                    funcparents := (String.concat ":" [(getfunname x); thisfunname]) :: !funcparents;
+
+
 
                     VarTypes.iter (fun a b -> setdepth (getfunname x) b.info.vname b.depth) usages;                  
                  
                     
-                    let params = begin 
-                        let toparam p = begin match p with 
-                            | Lval (lh, off) -> begin match lh with 
-                                | Var(info) -> begin 
+                    let params = ( 
+                        let toparam p = ( match p with 
+                            | Lval (lh, off) -> ( match lh with 
+                                | Var(info) -> ( 
                                     
                                     let localDepth = getdepth thisfunname info.vname in
                                     let nextDepth = getdepth (getfunname x) info.vname in
                                     
-                                    let fixed : exp = begin 
+                                    let fixed : exp = ( 
                                         let diff = localDepth - nextDepth in
-                                        (* print_endline "DIFF"; *)
-                                        (* print_endline (string_of_int diff); *)
+    
                                         match diff with
                                         | _ when diff < 0 -> decrdepth (lh,off) diff;
                                         | _ when diff > 0 -> Lval(incrdepth (lh,off) diff);
                                         | _ -> Lval(lh,off);
-                                    end in
+                                    ) in
 
 
                                     [fixed]
-                                end;
+                                );
                                 | _ -> [];
-                            end; 
+                            ); 
                             | _  -> [];
-                        end in
+                        ) in
                         
 
                         let lsts = List.map toparam exprs in
                         List.fold_left (fun a b -> a @ b) [] lsts;          
-                    end in
+                    ) in
 
                     match x with  
-                    | GFun(fdec, loc) -> begin
-                        ignore(visitCilGlobal (new extractMLC locals) x);
+                    | GFun(fdec, loc) -> (
+                        ignore(visitCilGlobal (new extractMLC locals (getfunname x)) x);
                         modExprs x;
                         let call = v2e fdec.svar in
                         new_calls := NewCalls.add call !new_calls;
@@ -374,13 +359,13 @@ class extractMLC locals = object(self)
                         let head_replace = if(first_break) then [List.hd blk.bstmts] else [] in
 
                         mkStmt (Loop(mkBlock (head_replace @ [(i2s (Call(None,call, params, locUnknown)))]), l1, l2, l3));
-                    end
-                    | _ ->  print_endline "FFFFFFF"; item;
-                    end
-                end in
+                    )
+                    | _ ->  print_endline "ERROR"; item;
+                    )
+                ) in
                 ChangeTo(action s);
-        end else DoChildren;
-    end 
+        ) else DoChildren;
+    ) 
         | _ -> DoChildren;
 end
 
@@ -398,18 +383,21 @@ let feature : Feature.t = {
 
       let res = getLoops f in
       visitCilFileSameGlobals (new registerVariables) f;
-      visitCilFileSameGlobals (new extractMLC res.locals) f;
+      visitCilFileSameGlobals (new extractMLC res.locals "main") f;
     
 
-      let declarefuns func = begin match func with
+      let declarefuns func = (match func with
         | GFun(fdec, loc) -> ignore(findOrCreateFunc f fdec.svar.vname fdec.svar.vtype);
         | _ -> ()
-      end in 
+      ) in 
 
       List.iter declarefuns !newfuns;
       f.globals <-  f.globals @ !newfuns;
 
       Errormsg.log "total: %d\n" !newfuncount;
+      print_endline "FUNC CREATED - PARENT FUNC";
+      List.iter print_endline !funcparents;
+      
 
       (* Errormsg.log "%s contains %d function calls\n" f.fileName !counter; *)
     );
