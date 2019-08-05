@@ -311,7 +311,7 @@ class extractMLC locals thisfunname= object(self)
 
                     let x = newfun replacement exprs in (
 
-                    funcparents := (String.concat ":" [(getfunname x); thisfunname]) :: !funcparents;
+                    funcparents := [(getfunname x); thisfunname] :: !funcparents;
 
 
 
@@ -383,7 +383,8 @@ let feature : Feature.t = {
 
       let res = getLoops f in
       visitCilFileSameGlobals (new registerVariables) f;
-      visitCilFileSameGlobals (new extractMLC res.locals "main") f;
+
+      List.iter (fun g -> if(match g with GFun  _ -> true | _ -> false) then ignore(visitCilGlobal (new extractMLC res.locals (getfunname g)) g)) f.globals;
     
 
       let declarefuns func = (match func with
@@ -396,10 +397,10 @@ let feature : Feature.t = {
 
       Errormsg.log "total: %d\n" !newfuncount;
       print_endline "FUNC CREATED - PARENT FUNC";
-      List.iter print_endline !funcparents;
+      List.iter (fun a -> 
+            print_endline (String.concat " " ["!!CHILDOF"; List.nth a 0; List.nth a 1]
+      )) !funcparents;
       
-
-      (* Errormsg.log "%s contains %d function calls\n" f.fileName !counter; *)
     );
 
     fd_post_check = true;

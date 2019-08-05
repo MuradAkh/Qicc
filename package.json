@@ -5,17 +5,15 @@
   "main": "test.js",
   "scripts": {
     "test": "mocha",
-    "verify": "./node_modules/ts-node/dist/bin.js index.ts"
+    "verify": "./node_modules/ts-node/dist/bin.js cli/cli.ts"
   },
-  "author": "",
-  "license": "MIT",
+  "author": "Murad Akhundov",
   "dependencies": {
     "@types/yargs": "^13.0.2",
     "mocha": "^6.1.4",
     "ts-node": "^8.3.0",
-    "typescript": "^3.5.3"
-  },
-  "devDependencies": {
-    "@types/node": "^12.6.9"
+    "typescript": "^3.5.3",
+    "@types/node": "^12.6.9"    
   }
+
 }

@@ -20,22 +20,22 @@ findFuncs: src/findFuncs.ml
 run-findFuncs: 
 	cilly --gcc=/usr/bin/gcc-6 --save-temps --load=_build/src/findFuncs.cmxs  output.c 
 
-run-countAST: countAST
+run-countAST: 
 	cilly --gcc=/usr/bin/gcc-6 --save-temps --load=_build/src/countAST.cmxs  file.c 
 
-run-countCFG: countCFG 
+run-countCFG:  
 	cilly --gcc=/usr/bin/gcc-6 --load=_build/src/countCFG.cmxs  file.c 
 
-run-countCFGnested: countCFGnested
+run-countCFGnested: 
 	cilly --gcc=/usr/bin/gcc-6 --load=_build/src/countCFGnested.cmxs  file.c 
 
-run-extractLoop: extractLoop
-		cilly --gcc=/usr/bin/gcc-6 --save-temps --load=_build/src/extractLoop.cmxs  file.c 
+run-extractLoop: 
+		cilly --gcc=/usr/bin/gcc-6 --save-temps --load=_build/src/extractLoop.cmxs file.c 
 		cat file.cil.c | grep -v '^#line' >| output.c
 
-run-extractMLC: extractMLC
+run-extractMLC: 
 		cilly --gcc=/usr/bin/gcc-6 --save-temps --load=_build/src/extractMLC.cmxs  file.c 
 		cat file.cil.c | grep -v '^#line' >| output.c
 
 clean:
-	rm a.out file.cil.c file.cil.i file.i file.o output.c
+	rm a.out *.cil.c *.cil.i *.i *.o 

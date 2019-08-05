@@ -5,6 +5,13 @@
 open Cil
 open Feature (* XXX you need to open the Feature module *)
 open Sys
+open Tututil
+
+let contains s1 s2 =
+    let re = Str.regexp_string s2
+    in
+        try ignore (Str.search_forward re s1 0); true
+        with Not_found -> false
 
 
 let getfunname = ( function
@@ -20,7 +27,7 @@ class hasAssert asserts= object(self)
         match expr with
         | Lval(lh, off) -> 
           match lh with 
-          | Var(info) -> if(info.vname = "assert") then asserts := getfunname !currentGlobal :: !asserts
+          | Var(info) -> if(contains info.vname "__CPROVER") then asserts := getfunname !currentGlobal :: !asserts
           | _ -> ();
           ;
         | _ -> ();
@@ -31,6 +38,30 @@ class hasAssert asserts= object(self)
   );
   | _ -> DoChildren
 end
+
+
+class parents funcparents = object(self)
+  inherit nopCilVisitor
+
+  method vinst = function
+  | Call(_, expr, _, _)-> (
+        match expr with
+        | Lval(lh, off) -> 
+          match lh with 
+          | Var(info) -> if(not (contains info.vname "__CPROVER")) then (
+               funcparents := [(info.vname); getfunname !currentGlobal] :: !funcparents;
+          ) 
+          | _ -> ();
+          ;
+        | _ -> ();
+        ;
+
+        DoChildren;
+
+  );
+  | _ -> DoChildren
+end
+
 
 
 (* XXX Cil.featureDescr is now Feature.t *)
@@ -57,6 +88,16 @@ let feature : Feature.t = {
          visitCilFileSameGlobals (new hasAssert asserts) f;
          List.iter print_endline !asserts;
        
+       )
+       | "GET_ALL_FUNCS" -> (
+          List.iter (onlyFunctions (fun fd loc -> (print_endline fd.svar.vname))) f.globals;
+       )
+       | "GET_PARENTS" -> (
+          let funcparents = ref [] in 
+          visitCilFileSameGlobals (new parents funcparents) f;
+          List.iter (fun a -> 
+            print_endline (String.concat " " ["!!CHILDOF"; List.nth a 0; List.nth a 1]
+          )) !funcparents;
        )
        | _ -> print_endline "INVALID COMMAND";
     
