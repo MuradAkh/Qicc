@@ -102,7 +102,7 @@ const verify = async (atts: ProgramAttributes) => {
         .reduce((acc: Status, curr: Status) => ({ ...acc, ...curr }), {})
 
     const prove = async (fun: LatticeNode, previous: LatticeNode | null): Promise<void> => {
-        switch (fun.proofLocal) {
+        switch (fun.proofActual) {
             case ProofStatus.unattempted: {
                 try {
                     await exec_wd(`cbmc output.c --unwind 200 --function ${fun.function}`)
@@ -118,7 +118,8 @@ const verify = async (atts: ProgramAttributes) => {
                 }
                 // fall through 
             }
-            case ProofStatus.fail | ProofStatus.success: {
+            case ProofStatus.success:
+            case ProofStatus.fail: {
                 if(previous) {
                     previous.provenParent = fun.provenParent
                     previous.proofActual = fun.proofActual
@@ -132,6 +133,7 @@ const verify = async (atts: ProgramAttributes) => {
     for (let fun of atts.assertFuns){
         await prove(status[fun], null)
     }
+    
 
 
     return atts.assertFuns.map((fun: string) => ({
