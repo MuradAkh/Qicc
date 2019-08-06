@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-#### Running
+#### CIL Modules
 
 Basic Prerequisites 
 
@@ -19,7 +19,7 @@ Install and compile CIL (**warning** - does not work with the version availible 
     make
     make install
 
-#### Testing
+#### CIL Module Tests and Verification tool
 
 Basic Prerequisites 
 
@@ -39,20 +39,22 @@ After installing, navigate to the project directory and run
 
 Run the cheker, target functions must located be in `file.c`
 
-Standard Tarjan's:
-
-    make countCFG
-    make run-countCFG
-
-Custom Cycle Tarjan's:
+Finding Local and non-Local loops:
 
     make countCFGnested
     make run-countCFGnested
 
-<!-- AST (naiive aproach):
+Extracting MLCs:
 
-    make countAST
-    make run-countAST -->
+    make extractMLC
+    make run-extractMLC
+
+Verification Tool:
+
+    make extractMLC
+    make findFuncs
+    npm run verify -- --file <filename.c>
+
 
 ## Testing
 
