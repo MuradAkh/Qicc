@@ -12,6 +12,7 @@ type loopdata = {
    counter: int ref;
    total: int ref;
    nonlocal: int ref ;
+   locals_locs: int list ref;
    locals: int list ref;
    nonlocals: int list ref;
 }
@@ -21,6 +22,7 @@ let loop_data = {
       total = ref 0;
       nonlocal = ref 0;
       locals = ref [];
+      locals_locs = ref [];
       nonlocals = ref [];
 }
 
@@ -135,7 +137,7 @@ class countLocalCFG  max = object(self)
 
             dfs x [];            
             if(!exits > 1 || !midexit) then begin incr loop_data.nonlocal;  loop_data.nonlocals :=  x.sid :: !(loop_data.nonlocals) end  
-            else loop_data.locals :=  x.sid :: !(loop_data.locals)
+            else (loop_data.locals :=  x.sid :: !(loop_data.locals); loop_data.locals_locs :=  (get_stmtLoc x.skind).line :: !(loop_data.locals_locs) )
 
       end in
 
@@ -173,9 +175,9 @@ end
 
 
 
-type respones = {locals: int list ref; nonlocals: int list ref}
+type respones = {locals: int list ref; nonlocals: int list ref; locals_locs: int list ref}
 
 let getLoops f = begin
     visitCilFileSameGlobals (new countCalls) f;
-    {locals = loop_data.locals; nonlocals = loop_data.nonlocals}
+    {locals = loop_data.locals; nonlocals = loop_data.nonlocals; locals_locs = loop_data.locals_locs}
 end

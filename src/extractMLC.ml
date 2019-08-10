@@ -20,6 +20,7 @@ module NewCalls = Set.Make(struct type t = exp let compare = compare end)
 let newfuncount = ref 0
 let newfuns = ref []
 let funcparents = ref []
+let funclocs = ref []
 
 
 let printint i = (print_endline (string_of_int i));;
@@ -45,6 +46,14 @@ let checkdepth (vinfo : varinfo) = (
 
     check vinfo.vtype
 )
+
+
+exception NotInList of string
+
+let rec find x lst =
+    match lst with
+    | [] -> raise (NotInList "Could not find item in list")
+    | h :: t -> if x = h then 0 else 1 + find x t
 
 
 let rec incrdepth lval by = ( 
@@ -284,12 +293,12 @@ let checkbreak statement = (
 
 
 
-class extractMLC locals thisfunname= object(self)
+class extractMLC locals thisfunname (locals_locs: int list ref) = object(self)
 
   inherit nopCilVisitor
 
   method vstmt s = match s.skind with
-    | Loop(blk, l1, l2, l3) -> ( 
+    | Loop(blk, loc, l2, l3) -> ( 
           
             if(List.mem s.sid !locals) then ( 
                 let action item = (
@@ -308,10 +317,17 @@ class extractMLC locals thisfunname= object(self)
                         VarTypes.iter (fun a b -> out :=  Lval(Var(b.info), NoOffset) :: !out) usages;                  
                         !out;
                     ) in                 
+                    
 
                     let x = newfun replacement exprs in (
 
+
+        
+
                     funcparents := [(getfunname x); thisfunname] :: !funcparents;
+                    funclocs := [(getfunname x); 
+                        string_of_int (List.nth !locals_locs (find s.sid !locals))
+                        ] :: !funclocs;
 
 
 
@@ -350,7 +366,7 @@ class extractMLC locals thisfunname= object(self)
 
                     match x with  
                     | GFun(fdec, loc) -> (
-                        ignore(visitCilGlobal (new extractMLC locals (getfunname x)) x);
+                        ignore(visitCilGlobal (new extractMLC locals (getfunname x) locals_locs) x);
                         modExprs x;
                         let call = v2e fdec.svar in
                         new_calls := NewCalls.add call !new_calls;
@@ -358,7 +374,7 @@ class extractMLC locals thisfunname= object(self)
 
                         let head_replace = if(first_break) then [List.hd blk.bstmts] else [] in
 
-                        mkStmt (Loop(mkBlock (head_replace @ [(i2s (Call(None,call, params, locUnknown)))]), l1, l2, l3));
+                        mkStmt (Loop(mkBlock (head_replace @ [(i2s (Call(None,call, params, locUnknown)))]), loc, l2, l3));
                     )
                     | _ ->  print_endline "ERROR"; item;
                     )
@@ -384,7 +400,7 @@ let feature : Feature.t = {
       let res = getLoops f in
       visitCilFileSameGlobals (new registerVariables) f;
 
-      List.iter (fun g -> if(match g with GFun  _ -> true | _ -> false) then ignore(visitCilGlobal (new extractMLC res.locals (getfunname g)) g)) f.globals;
+      List.iter (fun g -> if(match g with GFun  _ -> true | _ -> false) then ignore(visitCilGlobal (new extractMLC res.locals (getfunname g) res.locals_locs) g)) f.globals;
     
 
       let declarefuns func = (match func with
@@ -400,7 +416,13 @@ let feature : Feature.t = {
       List.iter (fun a -> 
             print_endline (String.concat " " ["!!CHILDOF"; List.nth a 0; List.nth a 1]
       )) !funcparents;
+
+        List.iter (fun a -> 
+            print_endline (String.concat " " ["!!FUNCLOC"; List.nth a 0; List.nth a 1]
+      )) !funclocs;
       
+
+      (* List.iter (fun a -> print_endline (string_of_int a )) !res.locals_locs *)
     );
 
     fd_post_check = true;

@@ -23,11 +23,12 @@ class hasAssert asserts= object(self)
   inherit nopCilVisitor
 
   method vinst = function
-  | Call(_, expr, _, _)-> (
+  | Call(_, expr, _, loc)-> (
         match expr with
         | Lval(lh, off) -> 
           match lh with 
-          | Var(info) -> if(contains info.vname "__CPROVER") then asserts := getfunname !currentGlobal :: !asserts
+          | Var(info) -> (if(contains info.vname "__CPROVER") then asserts := getfunname !currentGlobal :: !asserts;
+          )
           | _ -> ();
           ;
         | _ -> ();
@@ -44,7 +45,7 @@ class parents funcparents = object(self)
   inherit nopCilVisitor
 
   method vinst = function
-  | Call(_, expr, _, _)-> (
+  | Call(_, expr, _, loc)-> (
         match expr with
         | Lval(lh, off) -> 
           match lh with 
