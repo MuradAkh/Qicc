@@ -9,11 +9,11 @@
   },
   "author": "Murad Akhundov",
   "dependencies": {
+    "@types/node": "^12.6.9",
     "@types/yargs": "^13.0.2",
     "mocha": "^6.1.4",
+    "npm": "^6.10.3",
     "ts-node": "^8.3.0",
-    "typescript": "^3.5.3",
-    "@types/node": "^12.6.9"    
+    "typescript": "^3.5.3"
   }
-
 }

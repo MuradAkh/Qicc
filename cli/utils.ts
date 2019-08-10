@@ -20,16 +20,19 @@ interface ProgramAttributes {
     allFuns: string[]
     parents: FunctionMappings
     assertFuns: string[]
+    funcLocations: FunctionMappings
 }
 
 
-const extractMLC = async (filename: string): Promise<ProgramAttributes> => {
-    const { stdout, stderr } = await exec_wd(`cilly --gcc=/usr/bin/gcc-6 --save-temps --load=../_build/src/extractMLC.cmxs  ../${filename}`)
+const extractMLC = async (filepath: string): Promise<ProgramAttributes> => {
+    const filename = filepath.split('/').pop()!
+    const { stdout, stderr } = await exec_wd(`cilly --gcc=/usr/bin/gcc-6 --save-temps --load=../_build/src/extractMLC.cmxs  ../${filepath}`)
     await exec_wd(`cat ${filename.slice(0, -1)}cil.c | grep -v '^#line' >| output.c`)
     return {
         assertFuns: await getAssertFuns(),
         allFuns: await getAllFuns(),
-        parents: await getParents()
+        parents: await getParents(),
+        funcLocations: getLocs(stdout)
     }
 }
 
@@ -54,6 +57,16 @@ const getParents = async (): Promise<FunctionMappings> => {
         .map((arr: string[]) => ({ [arr[1]]: arr[2] }))
         .reduce((acc: FunctionMappings, curr: FunctionMappings) => ({ ...acc, ...curr }))
 }
+
+const getLocs = (stdout: string): FunctionMappings => {
+    return stdout
+        .split("\n")
+        .filter((str: string) => str.startsWith("!!FUNCLOC"))
+        .map((str: string) => str.split(" "))
+        .map((arr: string[]) => ({ [arr[1]]: arr[2] }))
+        .reduce((acc: FunctionMappings, curr: FunctionMappings) => ({ ...acc, ...curr }))
+}
+
 
 
 
@@ -122,7 +135,7 @@ const verify = async (atts: ProgramAttributes) => {
             }
             case ProofStatus.success:
             case ProofStatus.fail: {
-                if(previous) {
+                if (previous) {
                     previous.provenParent = fun.provenParent
                     previous.proofActual = fun.proofActual
                 }
@@ -134,12 +147,19 @@ const verify = async (atts: ProgramAttributes) => {
     await Promise.all(atts.assertFuns.map((fun: string) => prove(status[fun], null)))
 
 
-    return atts.assertFuns.map((fun: string) => ({
-        [fun]: {
-            isTrue: status[fun].proofActual === ProofStatus.success,
-            provedAt: status[fun].provenParent ? status[fun].provenParent!.function : null
-        } as Result
-    }));
+    return atts.assertFuns.map((fun: string) => {
+        const getLOC = (fun: string) => {
+            return  atts.funcLocations[fun] ? atts.funcLocations[fun] : fun
+        }
+
+
+        return {
+            [getLOC(fun)]: {
+                isTrue: status[fun].proofActual === ProofStatus.success,
+                provedAt: status[fun].provenParent ? getLOC(status[fun].provenParent!.function) : null
+            } as Result
+        }
+    });
 }
 
 module.exports = {

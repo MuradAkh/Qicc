@@ -17,7 +17,7 @@ tools.cleanUp()
     .then(() => tools.extractMLC(filename))
     .then(tools.verify)
     .then(console.log)
-    // .then(tools.cleanUp)
+    .then(tools.cleanUp)
     .catch(console.error)
 
 
