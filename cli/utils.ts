@@ -1,8 +1,7 @@
 'use-strict';
-import util = require('util');
-import { strict } from 'assert';
-import { access } from 'fs';
-import { ADDRGETNETWORKPARAMS } from 'dns';
+const util = require('util');
+import Mutex from './mutex'
+
 const exec_glob = util.promisify(require('child_process').exec);
 
 const WORKDIR: string = "_____WORKDIR"
@@ -37,17 +36,17 @@ const extractMLC = async (filename: string): Promise<ProgramAttributes> => {
 type FunctionMappings = Record<string, string>
 
 const getAssertFuns = async (): Promise<string[]> => {
-    const { stdout, stderr } = await exec_wd(`export FIND_COMMAND=GET_ASSERT_FUNCS && cilly --gcc=/usr/bin/gcc-6 --save-temps --load=../_build/src/findFuncs.cmxs  ./output.c`)
+    const { stdout } = await exec_wd(`export FIND_COMMAND=GET_ASSERT_FUNCS && cilly --gcc=/usr/bin/gcc-6 --save-temps --load=../_build/src/findFuncs.cmxs  ./output.c`)
     return stdout.split("\n").filter((str: string) => str !== '');
 }
 
 const getAllFuns = async (): Promise<string[]> => {
-    const { stdout, stderr } = await exec_wd(`export FIND_COMMAND=GET_ALL_FUNCS && cilly --gcc=/usr/bin/gcc-6 --save-temps --load=../_build/src/findFuncs.cmxs  ./output.c`)
+    const { stdout } = await exec_wd(`export FIND_COMMAND=GET_ALL_FUNCS && cilly --gcc=/usr/bin/gcc-6 --save-temps --load=../_build/src/findFuncs.cmxs  ./output.c`)
     return stdout.split("\n").filter((str: string) => str !== '');
 }
 
 const getParents = async (): Promise<FunctionMappings> => {
-    const { stdout, stderr } = await exec_wd(`export FIND_COMMAND=GET_PARENTS && cilly --gcc=/usr/bin/gcc-6 --save-temps --load=../_build/src/findFuncs.cmxs  ./output.c`)
+    const { stdout } = await exec_wd(`export FIND_COMMAND=GET_PARENTS && cilly --gcc=/usr/bin/gcc-6 --save-temps --load=../_build/src/findFuncs.cmxs  ./output.c`)
     return stdout
         .split("\n")
         .filter((str: string) => str.startsWith("!!CHILDOF"))
@@ -78,6 +77,7 @@ interface LatticeNode {
     function: string
     proofLocal: ProofStatus
     proofActual: ProofStatus
+    mutex: Mutex
     provenParent: LatticeNode | null
 }
 
@@ -96,12 +96,14 @@ const verify = async (atts: ProgramAttributes) => {
                 function: fun,
                 proofLocal: ProofStatus.unattempted,
                 proofActual: ProofStatus.unattempted,
-                provenParent: null
-            }
+                provenParent: null,
+                mutex: new Mutex()
+            } as LatticeNode
         } as Status))
         .reduce((acc: Status, curr: Status) => ({ ...acc, ...curr }), {})
 
     const prove = async (fun: LatticeNode, previous: LatticeNode | null): Promise<void> => {
+        await fun.mutex.lock()
         switch (fun.proofActual) {
             case ProofStatus.unattempted: {
                 try {
@@ -126,14 +128,10 @@ const verify = async (atts: ProgramAttributes) => {
                 }
             }
         }
+        fun.mutex.release()
     }
 
-    //have to use imperitive for loop to enforce no concurrnecy
-    //may be performed concurrently only when sub-CFGs do not overlap
-    for (let fun of atts.assertFuns){
-        await prove(status[fun], null)
-    }
-    
+    await Promise.all(atts.assertFuns.map((fun: string) => prove(status[fun], null)))
 
 
     return atts.assertFuns.map((fun: string) => ({
