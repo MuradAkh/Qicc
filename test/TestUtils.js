@@ -2,9 +2,10 @@ const assert = require('assert');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
-const cillyCommand = (filename, progname) => `cilly --gcc=/usr/bin/gcc-6 --load=_build/src/${progname}.cmxs test/${filename}.c`
+const cillyCommand = (filename, progname) => `cilly --gcc=/usr/bin/gcc-6 --load=_build/src/${progname}.cmxs test/progs/find/${filename}.c`
+const npmCommand = (filename) => `npm run verify -- --file test/progs/assert/${filename}.c`
 
-const parse = (stderr) => {
+const parseFind = (stderr) => {
 
   const parsevalue = (field, val) => {
     switch (field) {
@@ -33,10 +34,15 @@ const parse = (stderr) => {
 
 }
 
+parseCli = (stdout) => {
+    const json = stdout.match(/\[[\s\S]*\]/g)[0].replace('\\', '');
+    return JSON.parse(json)
+}
+
 const basicTest = (progname) => {
   return  async (data) => {
-    const { stderr, stdout } = await exec(cillyCommand(data.test, progname))
-    const result = parse(stderr);
+    const { stderr } = await exec(cillyCommand(data.test, progname))
+    const result = parseFind(stderr);
     assert.equal(result.total, data.total, "total");
     assert.equal(result.totalnonlocal, data.totalnonlocal);
     assert.equal(result.wellstructured, data.wellstructured);
@@ -45,4 +51,15 @@ const basicTest = (progname) => {
   }
 }
 
-module.exports = { cillyCommand, parse, basicTest }
+const cliTest = () => {
+  return  async (prog, data) => {
+    const { stdout } = await exec(npmCommand(prog))
+    const result = parseCli(stdout);
+
+    assert.deepEqual(result, data);
+  }
+}
+
+
+
+module.exports = { basicTest, cliTest }

@@ -55,7 +55,7 @@ const getParents = async (): Promise<FunctionMappings> => {
         .filter((str: string) => str.startsWith("!!CHILDOF"))
         .map((str: string) => str.split(" "))
         .map((arr: string[]) => ({ [arr[1]]: arr[2] }))
-        .reduce((acc: FunctionMappings, curr: FunctionMappings) => ({ ...acc, ...curr }))
+        .reduce((acc: FunctionMappings, curr: FunctionMappings) => ({ ...acc, ...curr }), {})
 }
 
 const getLocs = (stdout: string): FunctionMappings => {
@@ -64,7 +64,7 @@ const getLocs = (stdout: string): FunctionMappings => {
         .filter((str: string) => str.startsWith("!!FUNCLOC"))
         .map((str: string) => str.split(" "))
         .map((arr: string[]) => ({ [arr[1]]: arr[2] }))
-        .reduce((acc: FunctionMappings, curr: FunctionMappings) => ({ ...acc, ...curr }))
+        .reduce((acc: FunctionMappings, curr: FunctionMappings) => ({ ...acc, ...curr }), {})
 }
 
 

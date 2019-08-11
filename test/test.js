@@ -1,6 +1,6 @@
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
-const { basicTest } = require('./TestUtils.js')
+const { basicTest, cliTest } = require('./TestUtils.js')
 
 
 
@@ -151,4 +151,43 @@ describe('Custom Tarjan', () => {
     })
   });
 })
+
+
+describe('Verification Tool', function () {
+  this.timeout(15000);
+
+  before(async () => {
+    await exec(`make findFuncs`)
+    await exec(`make extractMLC`)
+    this.test = cliTest()
+  })
+
+  it('nested', async () => {
+    await this.test('nested',
+      [
+        { "9": { "isTrue": true, "provedAt": "main" } },
+        { "16": { "isTrue": true, "provedAt": "main" } },
+        { "21": { "isTrue": true, "provedAt": "21" } }
+      ]
+    )
+  });
+
+  it('nonlocal', async () => {
+    await this.test('nonlocal',
+      [
+        { "main": { "isTrue": true, "provedAt": "main" } }
+      ]
+    )
+  });
+
+  it('onelocal', async () => {
+    await this.test('onelocal',
+      [
+        { "8": { "isTrue": true, "provedAt": "8" } }
+      ]
+    )
+  });
+})
+
+
 

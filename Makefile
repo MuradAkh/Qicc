@@ -7,7 +7,7 @@ extractLoop: src/countAST.ml
 extractMLC: src/countAST.ml
 	ocamlbuild -Is src -use-ocamlfind -package cil extractMLC.cma extractMLC.cmxs
 
-countCFG: src/countCFG.ml`
+countCFG: src/countCFG.ml
 	ocamlbuild -Is src -use-ocamlfind -package cil countCFG.cma countCFG.cmxs
 
 countCFGnested: src/countCFGnested.ml
