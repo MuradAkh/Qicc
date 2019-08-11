@@ -6,7 +6,7 @@ const { basicTest, cliTest } = require('./TestUtils.js')
 
 describe('CFG Standard Tarjan', () => {
   before(async () => {
-    this.test = basicTest("countCFG")
+    this.test = basicTest(["countCFG"])
     await exec(`make countCFG`)
   })
 
@@ -81,7 +81,7 @@ describe('CFG Standard Tarjan', () => {
 
 describe('Custom Tarjan', () => {
   before(async () => {
-    this.test = basicTest("countCFGnested")
+    this.test = basicTest(["findLoops", "countCFGnested"])
     await exec(`make countCFGnested`)
   })
 

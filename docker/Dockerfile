@@ -1,10 +1,9 @@
-FROM akabe/ocaml:ubuntu16.04_ocaml4.02.3
+FROM ubuntu:16.04
 
-RUN sudo apt-get update
-RUN sudo apt-get install --yes nodejs npm
-RUN sudo apt-get --yes install ocaml-findlib
-RUN sudo apt-get --yes install git
-RUN sudo opam install ocamlbuild
+RUN apt-get update
+RUN apt-get install --yes nodejs npm
+RUN apt-get install --yes perl ocaml ocaml-findlib opam 
+RUN apt-get --yes install git
 RUN ln -s /usr/bin/nodejs /usr/bin/node
 
 # RUN sudo apk add perl
@@ -12,13 +11,18 @@ RUN ln -s /usr/bin/nodejs /usr/bin/node
 
 RUN git clone https://github.com/cil-project/cil && \
     cd cil && \
-    ./configure --prefix=`opam config var prefix` && \
+    ./configure && \
     make && \
     make install
 
-RUN sudo apt-get --yes install software-properties-common && sudo apt-get update
-RUN sudo add-apt-repository ppa:ubuntu-toolchain-r/test && \
-    sudo apt-get update
-RUN sudo apt-get --yes install gcc-6
-RUN sudo npm install -g n
-RUN sudo n latest
+RUN apt-get --yes install software-properties-common &&  apt-get update
+RUN add-apt-repository ppa:ubuntu-toolchain-r/test && \
+    apt-get update
+RUN apt-get --yes install gcc-6
+RUN npm install -g n
+RUN n latest
+
+RUN opam init
+RUN opam install ocamlbuild
+
+RUN apt-get --yes install cbmc

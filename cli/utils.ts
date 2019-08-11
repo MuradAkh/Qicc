@@ -26,7 +26,7 @@ interface ProgramAttributes {
 
 const extractMLC = async (filepath: string): Promise<ProgramAttributes> => {
     const filename = filepath.split('/').pop()!
-    const { stdout, stderr } = await exec_wd(`cilly --gcc=/usr/bin/gcc-6 --save-temps --load=../_build/src/extractMLC.cmxs  ../${filepath}`)
+    const { stdout, stderr } = await exec_wd(`cilly --gcc=/usr/bin/gcc-6 --save-temps --load=../_build/src/findLoops.cmxs --load=../_build/src/tututil.cmxs --load=../_build/src/extractMLC.cmxs ../${filepath}`)
     await exec_wd(`cat ${filename.slice(0, -1)}cil.c | grep -v '^#line' >| output.c`)
     return {
         assertFuns: await getAssertFuns(),
@@ -39,17 +39,17 @@ const extractMLC = async (filepath: string): Promise<ProgramAttributes> => {
 type FunctionMappings = Record<string, string>
 
 const getAssertFuns = async (): Promise<string[]> => {
-    const { stdout } = await exec_wd(`export FIND_COMMAND=GET_ASSERT_FUNCS && cilly --gcc=/usr/bin/gcc-6 --save-temps --load=../_build/src/findFuncs.cmxs  ./output.c`)
+    const { stdout } = await exec_wd(`export FIND_COMMAND=GET_ASSERT_FUNCS && cilly --gcc=/usr/bin/gcc-6 --load=../_build/src/tututil.cmxs --load=../_build/src/findFuncs.cmxs  ./output.c`)
     return stdout.split("\n").filter((str: string) => str !== '');
 }
 
 const getAllFuns = async (): Promise<string[]> => {
-    const { stdout } = await exec_wd(`export FIND_COMMAND=GET_ALL_FUNCS && cilly --gcc=/usr/bin/gcc-6 --save-temps --load=../_build/src/findFuncs.cmxs  ./output.c`)
+    const { stdout } = await exec_wd(`export FIND_COMMAND=GET_ALL_FUNCS && cilly --gcc=/usr/bin/gcc-6 --load=../_build/src/tututil.cmxs --load=../_build/src/findFuncs.cmxs  ./output.c`)
     return stdout.split("\n").filter((str: string) => str !== '');
 }
 
 const getParents = async (): Promise<FunctionMappings> => {
-    const { stdout } = await exec_wd(`export FIND_COMMAND=GET_PARENTS && cilly --gcc=/usr/bin/gcc-6 --save-temps --load=../_build/src/findFuncs.cmxs  ./output.c`)
+    const { stdout } = await exec_wd(`export FIND_COMMAND=GET_PARENTS && cilly --gcc=/usr/bin/gcc-6  --load=../_build/src/tututil.cmxs --load=../_build/src/findFuncs.cmxs  ./output.c`)
     return stdout
         .split("\n")
         .filter((str: string) => str.startsWith("!!CHILDOF"))
@@ -120,7 +120,7 @@ const verify = async (atts: ProgramAttributes) => {
         switch (fun.proofActual) {
             case ProofStatus.unattempted: {
                 try {
-                    await exec_wd(`cbmc output.c --unwind 200 --function ${fun.function}`)
+                    await exec_wd(`cbmc output.c --unwind 50 --function ${fun.function}`)
                     fun.proofActual = ProofStatus.success
                     fun.proofLocal = ProofStatus.success
                     fun.provenParent = fun

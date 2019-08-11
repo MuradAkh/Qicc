@@ -2,7 +2,13 @@ const assert = require('assert');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
-const cillyCommand = (filename, progname) => `cilly --gcc=/usr/bin/gcc-6 --load=_build/src/${progname}.cmxs test/progs/find/${filename}.c`
+
+const loadCaml = (progs) =>{
+  return progs
+         .map(prog => `--load=_build/src/${prog}.cmxs`)
+         .join(' ')
+}
+const cillyCommand = (filename, progs) => `cilly --gcc=/usr/bin/gcc-6 ${loadCaml(progs)} test/progs/find/${filename}.c`
 const npmCommand = (filename) => `npm run verify -- --file test/progs/assert/${filename}.c`
 
 const parseFind = (stderr) => {
@@ -39,9 +45,9 @@ parseCli = (stdout) => {
     return JSON.parse(json)
 }
 
-const basicTest = (progname) => {
+const basicTest = (progs) => {
   return  async (data) => {
-    const { stderr } = await exec(cillyCommand(data.test, progname))
+    const { stderr } = await exec(cillyCommand(data.test, progs))
     const result = parseFind(stderr);
     assert.equal(result.total, data.total, "total");
     assert.equal(result.totalnonlocal, data.totalnonlocal);
