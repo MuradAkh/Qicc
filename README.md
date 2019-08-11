@@ -1,5 +1,7 @@
 # Check if a Program is well structured
 
+[![CircleCI](https://circleci.com/gh/MuradAkh/WellStructured.svg?style=svg)](https://circleci.com/gh/MuradAkh/WellStructured)
+
 ## Prerequisites
 
 #### CIL Modules
