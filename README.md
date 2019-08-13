@@ -1,4 +1,4 @@
-# Check if a Program is well structured
+# Incremental Assertions Prover
 
 ## Prerequisites
 
