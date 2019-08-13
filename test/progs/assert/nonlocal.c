@@ -1,4 +1,6 @@
 int __CPROVER_assert(int a, char* b){};
+int assume(int a ){}
+
 
 int main()
 {
