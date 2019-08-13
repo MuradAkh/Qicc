@@ -165,9 +165,9 @@ describe('Verification Tool', function () {
   it('nested', async () => {
     await this.test('nested',
       [
-        { "9": { "isTrue": true, "provedAt": "main" } },
-        { "16": { "isTrue": true, "provedAt": "main" } },
-        { "21": { "isTrue": true, "provedAt": "21" } }
+        { "11": { "isTrue": true, "provedAt": "main" } },
+        { "18": { "isTrue": true, "provedAt": "main" } },
+        { "23": { "isTrue": true, "provedAt": "23" } }
       ]
     )
   });
@@ -183,7 +183,7 @@ describe('Verification Tool', function () {
   it('onelocal', async () => {
     await this.test('onelocal',
       [
-        { "8": { "isTrue": true, "provedAt": "8" } }
+        { "10": { "isTrue": true, "provedAt": "10" } }
       ]
     )
   });

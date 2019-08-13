@@ -282,6 +282,23 @@ class hasBreak out = object(self)
 
 end
 
+class fetchExpr expr = object(self) 
+    inherit nopCilVisitor
+
+    method vstmt s = match s.skind with
+        | If(e, _, _, _) -> expr := e; SkipChildren
+        | _ -> DoChildren;
+
+end
+
+let fetchExprFromIf (s: stmt) : exp = 
+    let e = ref (Const(CChr('a'))) in (* dummy *)
+
+    ignore(visitCilStmt (new fetchExpr e) s);    
+
+    !e
+
+
 
 let checkbreak statement = (
     let out = ref false in
@@ -292,8 +309,7 @@ let checkbreak statement = (
 
 
 
-
-class extractMLC locals thisfunname (locals_locs: int list ref) = object(self)
+class extractMLC assume locals thisfunname (locals_locs: int list ref) = object(self)
 
   inherit nopCilVisitor
 
@@ -366,13 +382,21 @@ class extractMLC locals thisfunname (locals_locs: int list ref) = object(self)
 
                     match x with  
                     | GFun(fdec, loc) -> (
-                        ignore(visitCilGlobal (new extractMLC locals (getfunname x) locals_locs) x);
+                        ignore(visitCilGlobal (new extractMLC assume locals (getfunname x) locals_locs) x);
                         modExprs x;
                         let call = v2e fdec.svar in
                         new_calls := NewCalls.add call !new_calls;
                         List.iter (fun a -> new_calls := NewCalls.add a !new_calls) params;
 
-                        let head_replace = if(first_break) then [List.hd blk.bstmts] else [] in
+                        let head_replace = if(first_break) then (
+                            let expr =  (fetchExprFromIf (List.hd blk.bstmts)) in
+                            let call = v2e assume.svar in
+
+
+                            [List.hd blk.bstmts; i2s (Call(None, call, [expr], locUnknown))]
+
+                        
+                        ) else [] in
 
                         mkStmt (Loop(mkBlock (head_replace @ [(i2s (Call(None,call, params, locUnknown)))]), loc, l2, l3));
                     )
@@ -400,8 +424,12 @@ let feature : Feature.t = {
       let res = getLoops f in
       visitCilFileSameGlobals (new registerVariables) f;
 
-      List.iter (fun g -> if(match g with GFun  _ -> true | _ -> false) then ignore(visitCilGlobal (new extractMLC res.locals (getfunname g) res.locals_locs) g)) f.globals;
-    
+      let assume = findFunction  f.globals "assume" in
+
+      List.iter (fun g -> 
+        if(match g with GFun  _ -> true | _ -> false) 
+        then ignore(visitCilGlobal (new extractMLC assume res.locals (getfunname g) res.locals_locs) g)) f.globals;
+        
 
       let declarefuns func = (match func with
         | GFun(fdec, loc) -> ignore(findOrCreateFunc f fdec.svar.vname fdec.svar.vtype);
