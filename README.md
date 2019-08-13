@@ -1,5 +1,7 @@
 # Incremental Assertions Prover
 
+[![CircleCI](https://circleci.com/gh/MuradAkh/WellStructured.svg?style=svg)](https://circleci.com/gh/MuradAkh/WellStructured)
+
 ## Prerequisites
 
 #### CIL Modules
