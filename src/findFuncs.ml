@@ -27,7 +27,7 @@ class hasAssert asserts= object(self)
         match expr with
         | Lval(lh, off) -> 
           match lh with 
-          | Var(info) -> (if(contains info.vname "__CPROVER") then asserts := getfunname !currentGlobal :: !asserts;
+          | Var(info) -> (if(contains info.vname "assert") then asserts := getfunname !currentGlobal :: !asserts;
           )
           | _ -> ();
           ;
@@ -49,7 +49,7 @@ class parents funcparents = object(self)
         match expr with
         | Lval(lh, off) -> 
           match lh with 
-          | Var(info) -> if(not (contains info.vname "__CPROVER")) then (
+          | Var(info) -> if(not (contains info.vname "assert")) then (
                funcparents := [(info.vname); getfunname !currentGlobal] :: !funcparents;
           ) 
           | _ -> ();

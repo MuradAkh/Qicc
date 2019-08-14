@@ -323,7 +323,13 @@ class extractMLC assume locals thisfunname (locals_locs: int list ref) = object(
                     
 
                     let first_break = checkbreak (List.hd blk.bstmts) in
-                    let rstatements = if(first_break) then List.tl blk.bstmts else blk.bstmts in
+                    let rstatements = if(first_break) then (
+                        let expr =  (fetchExprFromIf (List.hd blk.bstmts)) in
+                        let call = v2e assume.svar in
+                        
+                        i2s (Call(None, call, [expr], locUnknown)) :: List.tl blk.bstmts 
+                        
+                    )else blk.bstmts in
 
                     let replacement = (mkStmt (Block({battrs=blk.battrs; bstmts= rstatements}))) in
                     let usages = !(getExprs replacement) in
@@ -389,11 +395,10 @@ class extractMLC assume locals thisfunname (locals_locs: int list ref) = object(
                         List.iter (fun a -> new_calls := NewCalls.add a !new_calls) params;
 
                         let head_replace = if(first_break) then (
-                            let expr =  (fetchExprFromIf (List.hd blk.bstmts)) in
-                            let call = v2e assume.svar in
+                         
 
 
-                            [List.hd blk.bstmts; i2s (Call(None, call, [expr], locUnknown))]
+                            [List.hd blk.bstmts]
 
                         
                         ) else [] in
@@ -424,7 +429,7 @@ let feature : Feature.t = {
       let res = getLoops f in
       visitCilFileSameGlobals (new registerVariables) f;
 
-      let assume = findFunction  f.globals "assume" in
+      let assume = findFunction  f.globals "__CPROVER_assume" in
 
       List.iter (fun g -> 
         if(match g with GFun  _ -> true | _ -> false) 
