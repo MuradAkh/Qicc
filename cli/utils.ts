@@ -120,7 +120,7 @@ const verify = async (atts: ProgramAttributes) => {
         switch (fun.proofActual) {
             case ProofStatus.unattempted: {
                 try {
-                    await exec_wd(`cbmc output.c --object-bits 10 --unwinding-assertions --unwind 100 --function ${fun.function} > /dev/null`)
+                    await exec_wd(`cbmc output.c --unwinding-assertions --unwind 100 --function ${fun.function} > /dev/null`)
                     fun.proofActual = ProofStatus.success
                     fun.proofLocal = ProofStatus.success
                     fun.provenParent = fun
