@@ -1,6 +1,7 @@
 # Qicc - Quick Incremental Checker for C
 
-[![CircleCI](https://circleci.com/gh/MuradAkh/WellStructured.svg?style=svg)](https://circleci.com/gh/MuradAkh/WellStructured)
+[![CircleCI](https://circleci.com/gh/MuradAkh/WellStructured.svg?style=svg)](https://circleci.com/gh/MuradAkh/WellStructured)]
+
 
 Qicc is a verification tool that enables proving assertions in C programs quicker. Qicc utilizes CBMC but can be modified to work with other verification tools. 
 
