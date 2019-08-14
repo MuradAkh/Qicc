@@ -1,63 +1,9 @@
-# Incremental Assertions Prover
+# Qicc - Quick Incremental Checker for C
 
-[![CircleCI](https://circleci.com/gh/MuradAkh/WellStructured.svg?style=svg)](https://circleci.com/gh/MuradAkh/WellStructured)
+[![CircleCI](https://circleci.com/gh/MuradAkh/Qicc.svg?style=svg)](https://circleci.com/gh/MuradAkh/Qicc)
 
-## Prerequisites
+Qicc is a verification tool that enables proving assertions in C programs quicker. Qicc utilizes CBMC but can be modified to work with other verification tools. 
 
-#### CIL Modules
+See the [Wiki](https://github.com/MuradAkh/Qicc/wiki) for more information.
 
-Basic Prerequisites 
-
-    ocaml v4.05 (not higher)
-    ocamlbuild
-    ocaml-findlib
-    opam
-
-Install and compile CIL (**warning** - does not work with the version availible in opam)
-
-    git clone https://github.com/cil-project/cil
-    cd cil
-    ./configure --prefix=`opam config var prefix`
-    make
-    make install
-
-#### CIL Module Tests and Verification tool
-
-Basic Prerequisites 
-
-    nodejs
-    npm
-
-Installing on Ubuntu 16.04 or higher:
-
-    sudo apt update
-    sudo apt install nodejs npm
-
-After installing, navigate to the project directory and run
-
-    npm install
-
-## Compiling and Running
-
-Run the cheker, target functions must located be in `file.c`
-
-Finding Local and non-Local loops:
-
-    make countCFGnested
-    make run-countCFGnested
-
-Extracting MLCs:
-
-    make extractMLC
-    make run-extractMLC
-
-Verification Tool:
-
-    make extractMLC
-    make findFuncs
-    npm run verify -- --file <filename.c>
-
-
-## Testing
-
-    npm test
+For instructions on how to install and run Qicc, see [Getting Sarted](https://github.com/MuradAkh/Qicc/wiki/2.-Getting-Started)
