@@ -215,6 +215,7 @@ class allExpr opt call set = object(self)
 
 end
 
+(** Get expression *)
 let getExprs stmt = (
     let exprs = ref VarTypes.empty in
 
@@ -240,6 +241,7 @@ let getExprs stmt = (
     exprs; 
 );;
 
+(** Update an expression *)
 let modExprs stmt = (
 
     let set lh off r1 loc = ( 
@@ -341,10 +343,27 @@ class extractMLC assume locals thisfunname (locals_locs: int list ref) = object(
                     ) in                 
                     
 
-                    let x = newfun replacement exprs in (
+                    (*TODO: add assume each pointer not null *)
+                    let asummes_valid_pointers = (
+                        let pointer_params = (
+                         List.filter 
+                            (fun p -> isPointerType (typeOf p ) )
+                            exprs
+                         ) in
+                         
+                         List.map 
+                            (fun p -> i2s (Call(None, (v2e assume.svar ), 
+                                [BinOp(Gt, p, integer 0 , intType)],
+                                locUnknown)))
+                            pointer_params 
+                    ) in
 
+                    let x = 
+                        newfun 
+                        (mkStmt (Block({battrs=blk.battrs; bstmts= asummes_valid_pointers @ rstatements})))
+                        exprs 
+                    in (
 
-        
 
                     funcparents := [(getfunname x); thisfunname] :: !funcparents;
                     funclocs := [(getfunname x); 
@@ -386,6 +405,8 @@ class extractMLC assume locals thisfunname (locals_locs: int list ref) = object(
                         List.fold_left (fun a b -> a @ b) [] lsts;          
                     ) in
 
+
+
                     match x with  
                     | GFun(fdec, loc) -> (
                         ignore(visitCilGlobal (new extractMLC assume locals (getfunname x) locals_locs) x);
@@ -394,16 +415,14 @@ class extractMLC assume locals thisfunname (locals_locs: int list ref) = object(
                         new_calls := NewCalls.add call !new_calls;
                         List.iter (fun a -> new_calls := NewCalls.add a !new_calls) params;
 
-                        let head_replace = if(first_break) then (
-                         
-
-
-                            [List.hd blk.bstmts]
-
-                        
+                        let head_replace = if(first_break) then (                 
+                            [List.hd blk.bstmts]                        
                         ) else [] in
 
-                        mkStmt (Loop(mkBlock (head_replace @ [(i2s (Call(None,call, params, locUnknown)))]), loc, l2, l3));
+                        mkStmt (Loop 
+                            (
+                                mkBlock (head_replace @ [(i2s (Call(None,call, params, locUnknown)))]), loc, l2, l3
+                            ));
                     )
                     | _ ->  print_endline "ERROR"; item;
                     )
