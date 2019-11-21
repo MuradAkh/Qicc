@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+
+<title>Gnuplot</title>
+<desc>Produced by GNUPLOT 4.6 patchlevel 3 </desc>
+
+<g id="gnuplot_canvas">
+
+<rect x="0" y="0" width="400" height="300" fill="none"/>
+<defs>
+
+	<circle id="gpDot" r="0.5" stroke-width="0.5"/>
+	<path id="gpPt0" stroke-width="0.267" stroke="currentColor" d="M-1,0 h2 M0,-1 v2"/>
+	<path id="gpPt1" stroke-width="0.267" stroke="currentColor" d="M-1,-1 L1,1 M1,-1 L-1,1"/>
+	<path id="gpPt2" stroke-width="0.267" stroke="currentColor" d="M-1,0 L1,0 M0,-1 L0,1 M-1,-1 L1,1 M-1,1 L1,-1"/>
+	<rect id="gpPt3" stroke-width="0.267" stroke="currentColor" x="-1" y="-1" width="2" height="2"/>
+	<rect id="gpPt4" stroke-width="0.267" stroke="currentColor" fill="currentColor" x="-1" y="-1" width="2" height="2"/>
+	<circle id="gpPt5" stroke-width="0.267" stroke="currentColor" cx="0" cy="0" r="1"/>
+	<use xlink:href="#gpPt5" id="gpPt6" fill="currentColor" stroke="none"/>
+	<path id="gpPt7" stroke-width="0.267" stroke="currentColor" d="M0,-1.33 L-1.33,0.67 L1.33,0.67 z"/>
+	<use xlink:href="#gpPt7" id="gpPt8" fill="currentColor" stroke="none"/>
+	<use xlink:href="#gpPt7" id="gpPt9" stroke="currentColor" transform="rotate(180)"/>
+	<use xlink:href="#gpPt9" id="gpPt10" fill="currentColor" stroke="none"/>
+	<use xlink:href="#gpPt3" id="gpPt11" stroke="currentColor" transform="rotate(45)"/>
+	<use xlink:href="#gpPt11" id="gpPt12" fill="currentColor" stroke="none"/>
+</defs>
+<g style="fill:none; color:white; stroke:black; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+</g>
+<g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke="black" d="M67.5,252.0 L75.0,252.0 M378.9,252.0 L371.4,252.0  h0.01"/>	<g transform="translate(60.5,255.7)" style="stroke:none; fill:black; font-family:arial; font-size:10.00pt; text-anchor:end">
+		<text><tspan>0.01</tspan></text>
+	</g>
+	<path stroke="black" d="M67.5,241.6 L71.2,241.6 M378.9,241.6 L375.2,241.6 M67.5,227.9 L71.2,227.9 M378.9,227.9 L375.2,227.9    M67.5,220.9 L71.2,220.9 M378.9,220.9 L375.2,220.9 M67.5,217.5 L75.0,217.5 M378.9,217.5 L371.4,217.5     h0.01"/>	<g transform="translate(60.5,221.2)" style="stroke:none; fill:black; font-family:arial; font-size:10.00pt; text-anchor:end">
+		<text><tspan>0.1</tspan></text>
+	</g>
+	<path stroke="black" d="M67.5,207.1 L71.2,207.1 M378.9,207.1 L375.2,207.1 M67.5,193.4 L71.2,193.4 M378.9,193.4 L375.2,193.4    M67.5,186.4 L71.2,186.4 M378.9,186.4 L375.2,186.4 M67.5,183.0 L75.0,183.0 M378.9,183.0 L371.4,183.0     h0.01"/>	<g transform="translate(60.5,186.7)" style="stroke:none; fill:black; font-family:arial; font-size:10.00pt; text-anchor:end">
+		<text><tspan>1</tspan></text>
+	</g>
+	<path stroke="black" d="M67.5,172.7 L71.2,172.7 M378.9,172.7 L375.2,172.7 M67.5,158.9 L71.2,158.9 M378.9,158.9 L375.2,158.9    M67.5,151.9 L71.2,151.9 M378.9,151.9 L375.2,151.9 M67.5,148.5 L75.0,148.5 M378.9,148.5 L371.4,148.5     h0.01"/>	<g transform="translate(60.5,152.2)" style="stroke:none; fill:black; font-family:arial; font-size:10.00pt; text-anchor:end">
+		<text><tspan>10</tspan></text>
+	</g>
+	<path stroke="black" d="M67.5,138.2 L71.2,138.2 M378.9,138.2 L375.2,138.2 M67.5,124.4 L71.2,124.4 M378.9,124.4 L375.2,124.4    M67.5,117.4 L71.2,117.4 M378.9,117.4 L375.2,117.4 M67.5,114.1 L75.0,114.1 M378.9,114.1 L371.4,114.1     h0.01"/>	<g transform="translate(60.5,117.8)" style="stroke:none; fill:black; font-family:arial; font-size:10.00pt; text-anchor:end">
+		<text><tspan>100</tspan></text>
+	</g>
+	<path stroke="black" d="M67.5,103.7 L71.2,103.7 M378.9,103.7 L375.2,103.7 M67.5,90.0 L71.2,90.0 M378.9,90.0 L375.2,90.0    M67.5,82.9 L71.2,82.9 M378.9,82.9 L375.2,82.9 M67.5,79.6 L75.0,79.6 M378.9,79.6 L371.4,79.6     h0.01"/>	<g transform="translate(60.5,83.3)" style="stroke:none; fill:black; font-family:arial; font-size:10.00pt; text-anchor:end">
+		<text><tspan>1000</tspan></text>
+	</g>
+	<path stroke="black" d="M67.5,69.2 L71.2,69.2 M378.9,69.2 L375.2,69.2 M67.5,55.5 L71.2,55.5 M378.9,55.5 L375.2,55.5    M67.5,48.4 L71.2,48.4 M378.9,48.4 L375.2,48.4 M67.5,45.1 L75.0,45.1 M378.9,45.1 L371.4,45.1     h0.01"/>	<g transform="translate(60.5,48.8)" style="stroke:none; fill:black; font-family:arial; font-size:10.00pt; text-anchor:end">
+		<text><tspan>10000</tspan></text>
+	</g>
+	<path stroke="black" d="M67.5,252.0 L67.5,244.5 M67.5,45.1 L67.5,52.6  h0.01"/>	<g transform="translate(67.5,270.7)" style="stroke:none; fill:black; font-family:arial; font-size:10.00pt; text-anchor:middle">
+		<text><tspan>10</tspan></text>
+	</g>
+	<path stroke="black" d="M114.4,252.0 L114.4,248.3 M114.4,45.1 L114.4,48.8 M141.8,252.0 L141.8,248.3 M141.8,45.1 L141.8,48.8    M161.2,252.0 L161.2,248.3 M161.2,45.1 L161.2,48.8 M176.3,252.0 L176.3,248.3 M176.3,45.1 L176.3,48.8    M188.7,252.0 L188.7,248.3 M188.7,45.1 L188.7,48.8 M199.1,252.0 L199.1,248.3 M199.1,45.1 L199.1,48.8    M208.1,252.0 L208.1,248.3 M208.1,45.1 L208.1,48.8 M216.1,252.0 L216.1,248.3 M216.1,45.1 L216.1,48.8    M223.2,252.0 L223.2,244.5 M223.2,45.1 L223.2,52.6  h0.01"/>	<g transform="translate(223.2,270.7)" style="stroke:none; fill:black; font-family:arial; font-size:10.00pt; text-anchor:middle">
+		<text><tspan>100</tspan></text>
+	</g>
+	<path stroke="black" d="M270.1,252.0 L270.1,248.3 M270.1,45.1 L270.1,48.8 M297.5,252.0 L297.5,248.3 M297.5,45.1 L297.5,48.8    M316.9,252.0 L316.9,248.3 M316.9,45.1 L316.9,48.8 M332.0,252.0 L332.0,248.3 M332.0,45.1 L332.0,48.8    M344.4,252.0 L344.4,248.3 M344.4,45.1 L344.4,48.8 M354.8,252.0 L354.8,248.3 M354.8,45.1 L354.8,48.8    M363.8,252.0 L363.8,248.3 M363.8,45.1 L363.8,48.8 M371.8,252.0 L371.8,248.3 M371.8,45.1 L371.8,48.8    M378.9,252.0 L378.9,244.5 M378.9,45.1 L378.9,52.6  h0.01"/>	<g transform="translate(378.9,270.7)" style="stroke:none; fill:black; font-family:arial; font-size:10.00pt; text-anchor:middle">
+		<text><tspan>1000</tspan></text>
+	</g>
+	<path stroke="black" d="M67.5,45.1 L67.5,252.0 L378.9,252.0 L378.9,45.1 L67.5,45.1 Z  h0.01"/>	<g transform="translate(14.7,148.6) rotate(270)" style="stroke:none; fill:black; font-family:arial; font-size:10.00pt; text-anchor:middle">
+		<text><tspan>Time (seconds)</tspan></text>
+	</g>
+	<g transform="translate(223.2,293.2)" style="stroke:none; fill:black; font-family:arial; font-size:10.00pt; text-anchor:middle">
+		<text><tspan>loop iterartions</tspan></text>
+	</g>
+	<g transform="translate(223.2,26.3)" style="stroke:none; fill:black; font-family:arial; font-size:10.00pt; text-anchor:middle">
+		<text><tspan>CBMC vs Qicc on 2 Sum</tspan></text>
+	</g>
+</g>
+	<g id="gnuplot_plot_1"><title>gnuplot_plot_1</title>
+<g style="fill:none; color:red; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<g transform="translate(322.4,225.7)" style="stroke:none; fill:black; font-family:arial; font-size:10.00pt; text-anchor:end">
+		<text><tspan>Qicc</tspan></text>
+	</g>
+	<path d="M329.4,222.0 L364.9,222.0 M67.5,165.2 L114.4,164.7 L161.2,164.7 L208.1,163.9 L255.0,162.7 L301.9,156.0     h0.01"/>	<use xlink:href="#gpPt0" transform="translate(67.5,165.2) scale(3.75)"/>
+	<use xlink:href="#gpPt0" transform="translate(114.4,164.7) scale(3.75)"/>
+	<use xlink:href="#gpPt0" transform="translate(161.2,164.7) scale(3.75)"/>
+	<use xlink:href="#gpPt0" transform="translate(208.1,163.9) scale(3.75)"/>
+	<use xlink:href="#gpPt0" transform="translate(255.0,162.7) scale(3.75)"/>
+	<use xlink:href="#gpPt0" transform="translate(301.9,156.0) scale(3.75)"/>
+	<use xlink:href="#gpPt0" transform="translate(347.1,222.0) scale(3.75)"/>
+</g>
+	</g>
+	<g id="gnuplot_plot_2"><title>gnuplot_plot_2</title>
+<g style="fill:none; color:green; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<g transform="translate(322.4,240.7)" style="stroke:none; fill:black; font-family:arial; font-size:10.00pt; text-anchor:end">
+		<text><tspan>CBMC</tspan></text>
+	</g>
+	<path d="M329.4,237.0 L364.9,237.0 M67.5,241.6 L114.4,201.1 L161.2,177.0 L208.1,136.2 L255.0,96.5 L301.9,49.0     h0.01"/>	<use xlink:href="#gpPt1" transform="translate(67.5,241.6) scale(3.75)"/>
+	<use xlink:href="#gpPt1" transform="translate(114.4,201.1) scale(3.75)"/>
+	<use xlink:href="#gpPt1" transform="translate(161.2,177.0) scale(3.75)"/>
+	<use xlink:href="#gpPt1" transform="translate(208.1,136.2) scale(3.75)"/>
+	<use xlink:href="#gpPt1" transform="translate(255.0,96.5) scale(3.75)"/>
+	<use xlink:href="#gpPt1" transform="translate(301.9,49.0) scale(3.75)"/>
+	<use xlink:href="#gpPt1" transform="translate(347.1,237.0) scale(3.75)"/>
+</g>
+	</g>
+<g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke="black" d="M67.5,45.1 L67.5,252.0 L378.9,252.0 L378.9,45.1 L67.5,45.1 Z  h0.01"/></g>
+</g>
+</svg>
