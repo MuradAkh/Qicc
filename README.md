@@ -1,4 +1,4 @@
-# Qicc - Quick Incremental Checker for C
+# Qicc - Quick Isolating Checker for C
 
 [![CircleCI](https://circleci.com/gh/MuradAkh/Qicc.svg?style=svg)](https://circleci.com/gh/MuradAkh/Qicc)
 
