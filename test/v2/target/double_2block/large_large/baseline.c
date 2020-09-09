@@ -4,9 +4,9 @@ int __CPROVER_assume(int a ){}
 int main(){
     int n;
     int x = 0;
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < 200; i++)
     {
-        for (int j = 0; j < 100; j++)
+        for (int j = 0; j < 200; j++)
         {
             __CPROVER_assert(x == 0, "postcondition");
         }

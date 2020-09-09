@@ -5,7 +5,7 @@ int main(){
     int n;
     for (int i = 0; i < 10; i++)
     {
-        for (int j = 0; j < 100; j++)
+        for (int j = 0; j < 200; j++)
         {
             int x = 0;
             __CPROVER_assert(x == 0, "postcondition");
