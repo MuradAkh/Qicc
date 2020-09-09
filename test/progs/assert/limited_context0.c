@@ -1,4 +1,5 @@
 int __CPROVER_assert(int a, char *b) {}
+int __CPROVER_assume(int a ){}
 
 
 int main()
@@ -11,17 +12,17 @@ int client(int n)
 {
     int i = 0;
     int sum = 0;
-    while (i <= n)
-    {
-        if (lib(i) == 0)
-        {
-            sum += i;
-        }
-        i++;
-    }
+    // while (i <= n)
+    // {
+    //     if (lib(i) == 0)
+    //     {
+    //         sum += i;
+    //     }
+    //     i++;
+    // }
 
     int j = 0;
-    while (j < 100)
+    while (j < 300)
     {
         int k = 100;
         //relevant context

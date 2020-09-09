@@ -1,4 +1,6 @@
 int __CPROVER_assert(int a, char *b) {}
+int __CPROVER_assume(int a ){}
+
 
 
 int main(){
@@ -11,8 +13,10 @@ int client(int n){
     int sum = 0;
     while (i<=n){
         if (lib(i) == 0){
-            sum +=i;
+            sum += 1;
         }
+
+        if(sum == 3) break;
         i++;
     }
 

@@ -1,3 +1,6 @@
+int __CPROVER_assert(int a, char *b) {}
+int __CPROVER_assume(int a ){}
+
 int main(){
     int n;
     client(n);
@@ -19,7 +22,7 @@ int lib(int a){
     int i = 2;
     int count = 0;
     while (i < a){
-        assert(a  >= 0);
+        __CPROVER_assert(a  >= 0, "postcondition");
         if ((a % i ) != 0){
             count = 1;
         }

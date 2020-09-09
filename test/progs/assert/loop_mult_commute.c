@@ -1,3 +1,13 @@
+int __CPROVER_assert(int a, char *b) {}
+int __CPROVER_assume(int a ){}
+
+typedef struct walker_list {
+	char *end;
+	char *cur;
+	struct walker_list *prev;
+	char wbuf[1];
+} walker_list;
+
 int main(){
     int x;
     client(x);
@@ -14,9 +24,9 @@ int client(int x) {
 	}
 	for (int i=1;i<=b;++i){
 		d+=a;
-		assert (d <= c);
+		__CPROVER_assert (d <= c, "postcondition");
 	}
-    assert( c == d );
+    __CPROVER_assert( c == d, "postcondition" );
 	return c;
 
 	}
