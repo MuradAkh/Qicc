@@ -100,7 +100,7 @@ type Status = Record<string, LatticeNode>
 interface Result {
     provedAt: string | null
     isTrue: boolean
-    solveTime: number
+    // solveTime: number
 }
 
 const verify = async (atts: ProgramAttributes) => {
@@ -121,7 +121,7 @@ const verify = async (atts: ProgramAttributes) => {
         switch (fun.proofActual) {
             case ProofStatus.unattempted: {
                 try {
-                    await exec_wd(`cbmc output.c --unwinding-assertions --unwind 201 --function ${fun.function} > /dev/null`)
+                    await exec_wd(`cbmc output.c --unwinding-assertions  --function ${fun.function} > /dev/null`)
                     fun.proofActual = ProofStatus.success
                     fun.proofLocal = ProofStatus.success
                     fun.provenParent = fun
@@ -158,7 +158,7 @@ const verify = async (atts: ProgramAttributes) => {
             [getLOC(fun)]: {
                 isTrue: status[fun].proofActual === ProofStatus.success,
                 provedAt: status[fun].provenParent ? getLOC(status[fun].provenParent!.function) : null,
-                solveTime: 0
+                // solveTime: 0
             } as Result
         }
     });
