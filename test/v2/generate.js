@@ -14,5 +14,5 @@ const cases = fs.readFileSync('./test/v2/cases.txt', 'utf-8').split('\n');
 
 for(const casepath of cases){
     const file = fs.readFileSync(`${casepath}/baseline.c`, 'utf-8');
-    fs.writeFileSync(`${casepath}/${filename}.c`, file.replace(BASE_KOWLEDGE, knowledge).replace(BASE_ASSERT, assert));
+    fs.writeFileSync(`${casepath}/${filename}.gen.c`, file.replace(BASE_KOWLEDGE, knowledge).replace(BASE_ASSERT, assert));
 }

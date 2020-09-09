@@ -1,0 +1,1 @@
+__CPROVER_assert(x0 >= 99. & x0 <= 101., "postcondition");
