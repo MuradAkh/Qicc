@@ -28,6 +28,7 @@ const extractMLC = async (filepath: string): Promise<ProgramAttributes> => {
     const filename = filepath.split('/').pop()!
     const { stdout, stderr } = await exec_wd(`cilly --gcc=/usr/bin/gcc-6 --save-temps --load=../_build/src/findLoops.cmxs --load=../_build/src/tututil.cmxs --load=../_build/src/extractMLC.cmxs ../${filepath}`)
     await exec_wd(`cat ${filename.slice(0, -1)}cil.c | grep -v '^#line' >| output.c`)
+    await exec_wd(`cat ${filename.slice(0, -1)}i | grep -v '^#line' >| original.c`)
     return {
         assertFuns: await getAssertFuns(),
         allFuns: await getAllFuns(),
@@ -121,7 +122,9 @@ const verify = async (atts: ProgramAttributes) => {
         switch (fun.proofActual) {
             case ProofStatus.unattempted: {
                 try {
-                    await exec_wd(`cbmc output.c --unwinding-assertions --unwind 201 --function ${fun.function} > /dev/null`)
+                    const targetfile =  fun.function === "main" ? "original.c" : "output.c"
+                    console.log(fun.function)
+                    await exec_wd(`cbmc ${targetfile} --unwinding-assertions --unwind 201 --function ${fun.function} > /dev/null`)
                     fun.proofActual = ProofStatus.success
                     fun.proofLocal = ProofStatus.success
                     fun.provenParent = fun

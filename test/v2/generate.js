@@ -1,7 +1,4 @@
 const fs = require('fs');
-const {performance} = require('perf_hooks');
-const util = require('util');
-const exec = util.promisify(require('child_process').exec);
 
 const BASE_KOWLEDGE = "int x = 0;"
 const BASE_ASSERT = "__CPROVER_assert(x == 0, \"postcondition\");"

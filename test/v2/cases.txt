@@ -1,14 +1,14 @@
+./test/v2/target/double/small_small
+./test/v2/target/double/large_large
 ./test/v2/target/double/dynamic_dynamic
 ./test/v2/target/double/dynamic_large
 ./test/v2/target/double/dynamic_small
 ./test/v2/target/double/large_dynamic
-./test/v2/target/double/large_large
 ./test/v2/target/double/large_small
 ./test/v2/target/double/small_dynamic
 ./test/v2/target/double/small_large
-./test/v2/target/double/small_small
 ./test/v2/target/double_1block/dynamic_dynamic
-./test/v2/target/double_1block/dynamic_large
+./test/v2/target/double_v1block/dynamic_large
 ./test/v2/target/double_1block/dynamic_small
 ./test/v2/target/double_1block/large_dynamic
 ./test/v2/target/double_1block/large_large

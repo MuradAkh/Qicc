@@ -1,0 +1,6 @@
+
+  for (k = 0; k < 10; k++) {
+
+    __CPROVER_assert(time < 3.40282347e+38F - tick, "postcondition");
+    time += tick;
+  }                                                                                                                               

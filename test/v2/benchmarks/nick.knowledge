@@ -1,0 +1,3 @@
+  float tick = 1.f / 10.f;
+  float time = 0.f;
+  int k;
