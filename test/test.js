@@ -165,9 +165,9 @@ describe('Verification Tool', function () {
   it('nested', async () => {
     await this.test('nested',
       [
-        { "11": { "isTrue": true, "provedAt": "main" } },
-        { "18": { "isTrue": true, "provedAt": "main" } },
-        { "23": { "isTrue": true, "provedAt": "23" } }
+        { loc:"11", "isTrue": true, "provedAt": "main" },
+        { loc:"18", "isTrue": true, "provedAt": "main" },
+        { loc:"23", "isTrue": true, "provedAt": "23" }
       ]
     )
   });
@@ -175,7 +175,7 @@ describe('Verification Tool', function () {
   it('nonlocal', async () => {
     await this.test('nonlocal',
       [
-        { "main": { "isTrue": true, "provedAt": "main" } }
+        {loc:"main", "isTrue": true, "provedAt": "main"}
       ]
     )
   });
@@ -183,7 +183,7 @@ describe('Verification Tool', function () {
   it('onelocal', async () => {
     await this.test('onelocal',
       [
-        { "10": { "isTrue": true, "provedAt": "10" } }
+        { loc:"10", "isTrue": true, "provedAt": "10" } 
       ]
     )
   });

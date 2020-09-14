@@ -1,10 +1,12 @@
+all: tututil findLoops extractMLC 
+
 countAST: src/countAST.ml
 	ocamlbuild -Is src -use-ocamlfind -package cil countAST.cma countAST.cmxs
 
 extractLoop: src/countAST.ml
 	ocamlbuild -Is src -use-ocamlfind -package cil extractLoop.cma extractLoop.cmxs
 
-extractMLC: src/countAST.ml tututil findLoops
+extractMLC:
 	ocamlbuild -Is src -use-ocamlfind -package cil extractMLC.cma extractMLC.cmxs
 
 countCFG: src/countCFG.ml 
@@ -13,7 +15,7 @@ countCFG: src/countCFG.ml
 countCFGnested: src/countCFGnested.ml findLoops
 	ocamlbuild -Is src -use-ocamlfind -package cil countCFGnested.cma countCFGnested.cmxs
 
-findLoops: src/findLoops.ml
+findLoops: 
 	ocamlbuild -Is src -use-ocamlfind -package cil findLoops.cma findLoops.cmxs
 
 tututil: src/tututil.ml
@@ -41,6 +43,9 @@ run-extractLoop:
 run-extractMLC: 
 		cilly --gcc=/usr/bin/gcc-6 --save-temps --load=_build/src/extractMLC.cmxs  file.c 
 		cat file.cil.c | grep -v '^#line' >| output.c
+
+cli:
+	tsc cli/*.ts
 
 clean:
 	rm a.out *.cil.c *.cil.i *.i *.o 

@@ -99,6 +99,7 @@ interface LatticeNode {
 type Status = Record<string, LatticeNode>
 
 interface Result {
+    loc: string
     provedAt: string | null
     isTrue: boolean
     // solveTime: number
@@ -158,12 +159,12 @@ const verify = async (atts: ProgramAttributes) => {
 
 
         return {
-            [getLOC(fun)]: {
+                loc: getLOC(fun),
                 isTrue: status[fun].proofActual === ProofStatus.success,
                 provedAt: status[fun].provenParent ? getLOC(status[fun].provenParent!.function) : null,
                 // solveTime: 0
             } as Result
-        }
+    
     });
 }
 

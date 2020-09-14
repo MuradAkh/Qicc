@@ -198,7 +198,7 @@ let rec findType (gl : global list) (typname : string) : typ =
 
 let rec findFunction (gl : global list) (fname : string) : fundec =
     match gl with
-    | [] -> raise(Failure "Function not found")
+    | [] -> raise(Failure ("Function not found :" ^ fname))
     | GFun(fd,_) :: _ when fd.svar.vname = fname -> fd
     | _ :: rst -> findFunction rst fname
 
