@@ -6,7 +6,7 @@ const exec_glob = util.promisify(require('child_process').exec);
 
 const WORKDIR: string = "_____WORKDIR"
 
-const exec_wd = (cmd: string) => exec_glob(cmd, { cwd: `./${WORKDIR}` })
+const exec_wd = (cmd: string) => exec_glob(`cd ${WORKDIR} && ${cmd}`)
 
 
 const createWorkdir = async () => exec_glob(`mkdir ${WORKDIR}`)
