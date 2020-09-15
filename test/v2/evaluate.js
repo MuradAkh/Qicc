@@ -48,5 +48,5 @@ async function evaluate() {
 }
 
 evaluate()
-    .then(l => fs.writeFile(`./results/${benchmark}.result`, l.join("\n")))
+    .then(l => fs.writeFileSync(`./results/${benchmark}.result`, l.join("\n")))
     .catch(console.log)
