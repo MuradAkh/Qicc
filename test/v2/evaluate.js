@@ -15,6 +15,7 @@ parseCli = (stdout) => {
 
 
 async function evaluate() {
+    const log = []
     
     for (const casepath of cases) {
         const t0 = performance.now()
@@ -34,12 +35,18 @@ async function evaluate() {
 
         const t2 = performance.now()
 
+        const casename = casepath.replace("./test/v2/target/", "")
         const qicctime = qicc ? t1 - t0 : "f"
         const cbmctime = cbmc ? t2 - t1 : "f"
-        console.log(`${qicctime}, ${cbmctime}`)
+        console.log(`${casename}: ${qicctime}, ${cbmctime}`)
+        log.push(`${casename}: ${qicctime}, ${cbmctime}`)
         
     }
+
+    return log;
     
 }
 
-evaluate().catch(console.log)
+evaluate()
+    .then(l => fs.writeFile(`./results/${benchmark}.result`, l.join("\n")))
+    .catch(console.log)
