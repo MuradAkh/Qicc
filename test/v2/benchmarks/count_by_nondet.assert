@@ -1,0 +1,1 @@
+ __CPROVER_assert(k <= 100, "postcondition");

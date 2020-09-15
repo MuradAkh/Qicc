@@ -156,7 +156,7 @@ static void lm_sub(byte* r, const byte* a, const byte* b)
 	c = (c >> 7) * 19;
 
 	for (i = 0; i < F25519_SIZE; i++) {
-			int* var42 = a + i;
+		int* var42 = a + i;
 		int var42_ = *var42;
 		c += var42_;
 		r[i] = c;
@@ -172,20 +172,32 @@ static void fe_mul__distinct(byte *r, const byte *a, const byte *b)
 
 	for (i = 0; i < F25519_SIZE; i++) {
 		int j;
-		int* var30 = a + j;
-		int var30_ = *var30;
-		int* var31 = b + (i + j);
-		int var31_ = *var31;
-		int* var32 = a + (i + F25519_SIZE - j);
-		int var32_ = *var32;
+
+
 
 		c >>= 8;
-		for (j = 0; j <= i; j++)
+		for (j = 0; j <= i; j++){
+			int* var30 = a + j;
+			int var30_ = *var30;
+			int idx = i -j;
+			int* var31 = b + idx;
+			int var31_ = *var31;
+			__CPROVER_assert(idx < F25519_SIZE, "postcondition");
 			c += ((word32)var30_) * (var31_);
 
-		for (; j < F25519_SIZE; j++)
-			c += ((word32)var30_) *
-			     ((word32) var32_) * 38;
+		}
+
+		for (; j < F25519_SIZE; j++){
+				int* var30 = a + j;
+				int var30_ = *var30;
+				int idx = i + F25519_SIZE - j;
+				int* var32 = a + idx;
+				__CPROVER_assert(idx < F25519_SIZE, "postcondition");
+				int var32_ = *var32;
+				c += ((word32)var30_) *
+			    ((word32) var32_) * 38;
+		}
+		
 
 		r[i] = c;
 	}
@@ -211,7 +223,7 @@ static void fe_mul_c(byte *r, const byte *a, word32 b)
 
 	for (i = 0; i < F25519_SIZE; i++) {
 		c >>= 8;
-			int* var40 = a + i;
+		int* var40 = a + i;
 		int var40_ = *var40;
 		c += b * ((word32)var40_);
 		r[i] = c;
@@ -385,7 +397,7 @@ void target(byte *result, const byte *e, const byte *q)
 	lm_copy(xm, q);
 
 	for (i = 253; i >= 0; i--) {
-			int* var50 = e + (i >>3);
+		int* var50 = e + (i >>3);
 		int var50_ = *var50;
 		const int bit = ((var50_) >> (i & 7)) & 1;
 		byte* xms;

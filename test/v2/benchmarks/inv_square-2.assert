@@ -1,0 +1,5 @@
+ if (x <= -1e-20f || x >= 1e-20f) {
+    y = x * x;
+    __CPROVER_assert(y != 0.f, "postcondition");
+    z = 1.f / y;
+  }

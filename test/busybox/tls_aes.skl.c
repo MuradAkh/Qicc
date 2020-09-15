@@ -169,7 +169,8 @@ static int KeyExpansion(int *RoundKey, const void *key, unsigned key_len)
 		int var1_ = *var1;
 		void* tempa = (void*) var1_;
 		if (j == 0) {
-			int* var3 = Rcon + (i-words_key);
+			__CPROVER_assert(k < words_RoundKey, "postcondition");
+			int* var3 = Rcon + k;
 			int var3_ = *var3;
 			// RotWord(): rotates the 4 bytes in a word to the left once.
 			tempa = ((int) tempa << 8) | ((int) tempa >> 24);

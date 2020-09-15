@@ -1,0 +1,3 @@
+  float x, y, z;
+
+  __CPROVER_assume(x >= -1.f & x <= 1.f);

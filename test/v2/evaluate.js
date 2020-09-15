@@ -46,6 +46,7 @@ async function evaluate() {
         const cbmctime = cbmc ? t2 - t1 : "f"
         console.log(`${casename}: ${qicctime}, ${cbmctime}`)
         log.push(`${casename}: ${qicctime}, ${cbmctime}`)
+        await exec("killall -9 cbmc").catch(() => {});
         
     }
 
