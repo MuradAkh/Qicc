@@ -9,7 +9,7 @@ const WORKDIR: string = "_____WORKDIR"
 const exec_wd = (cmd: string) => exec_glob(`cd ${WORKDIR} && ${cmd}`)
 
 
-const createWorkdir = async () => exec_glob(`mkdir ${WORKDIR}`)
+const createWorkdir = async () => await exec_glob(`mkdir ${WORKDIR}`)
 const cleanUp = async () => {
     try {
         await exec_glob(`rm -rf ${WORKDIR}`)
