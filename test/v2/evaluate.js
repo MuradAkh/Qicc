@@ -23,7 +23,7 @@ async function evaluate() {
         const qicc = await exec(`node cli/cli.js --file ${casepath}/${benchmark}.gen.c`, {timeout})
             .then(r => r.stdout)
             .then(parseCli)
-            .then(r => r.reduce((acc, curr) => curr.isTrue && acc))
+            .then(r => r.reduce((acc, curr) => curr.isTrue && acc, true))
             .catch(() => false)
 
         const t1 = performance.now()
