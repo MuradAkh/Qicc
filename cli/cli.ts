@@ -13,12 +13,12 @@ let yargs = require("yargs")
 const filename : string = yargs.argv.file;
 
 tools.cleanUp()
-    .then(tools.createWorkdir())
+    .then(tools.createWorkdir)
     .then(() => tools.extractMLC(filename))
     .then(tools.verify)
     .then(JSON.stringify)
     .then(console.log)
-    .then(tools.cleanUp)
+    // .then(tools.cleanUp)
     .catch(console.error)
 
 
