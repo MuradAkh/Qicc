@@ -59,6 +59,7 @@ static void fe_select(byte *dst,
 	int i;
 
 	for (i = 0; i < F25519_SIZE; i++){
+				__CPROVER_assert(i < F25519_SIZE, "postcondition");
 		int* var8 = zero + i;
 		int* var9 = one + i;
 		int var8_ = *var8;
@@ -80,6 +81,7 @@ static void fe_normalize(byte *x)
 	x[31] &= 127;
 
 	for (i = 0; i < F25519_SIZE; i++) {
+				__CPROVER_assert(i < F25519_SIZE, "postcondition");
 		int var = *x + i;
 		c += var;
 		x[i] = (byte)c;
@@ -93,6 +95,7 @@ static void fe_normalize(byte *x)
 	c = 19;
 
 	for (i = 0; i < F25519_SIZE - 1; i++) {
+				__CPROVER_assert(i < F25519_SIZE, "postcondition");
 		int var = *x + i;
 		c += var;
 		byte *tar1 = *minusp + 1;
@@ -114,6 +117,7 @@ static void lm_add(byte* r, const byte* a, const byte* b)
 
 	/* Add */
 	for (i = 0; i < F25519_SIZE; i++) {
+				__CPROVER_assert(i < F25519_SIZE, "postcondition");
 		c >>= 8;
 		int* var11 = a + i;
 		int* var12 = b + i;
@@ -128,6 +132,7 @@ static void lm_add(byte* r, const byte* a, const byte* b)
 	c = (c >> 7) * 19;
 
 	for (i = 0; i < F25519_SIZE; i++) {
+				__CPROVER_assert(i < F25519_SIZE, "postcondition");
 		int* var13 = r + i;
 		int var13_ = *var13;
 		c += var13_;
@@ -144,6 +149,7 @@ static void lm_sub(byte* r, const byte* a, const byte* b)
 	/* Calculate a + 2p - b, to avoid underflow */
 	c = 218;
 	for (i = 0; i + 1 < F25519_SIZE; i++) {
+				__CPROVER_assert(i < F25519_SIZE, "postcondition");
 		int var3 = *a +i;
 		int var4 = *b  + i;
 		c += 65280 + (var3) - var4;
@@ -156,6 +162,7 @@ static void lm_sub(byte* r, const byte* a, const byte* b)
 	c = (c >> 7) * 19;
 
 	for (i = 0; i < F25519_SIZE; i++) {
+				__CPROVER_assert(i < F25519_SIZE, "postcondition");
 		int* var42 = a + i;
 		int var42_ = *var42;
 		c += var42_;
@@ -198,7 +205,7 @@ static void fe_mul__distinct(byte *r, const byte *a, const byte *b)
 			    ((word32) var32_) * 38;
 		}
 		
-
+		__CPROVER_assert(i < F25519_SIZE, "postcondition");
 		r[i] = c;
 	}
 
@@ -206,6 +213,8 @@ static void fe_mul__distinct(byte *r, const byte *a, const byte *b)
 	c = (c >> 7) * 19;
 
 	for (i = 0; i < F25519_SIZE; i++) {
+		__CPROVER_assert(i < F25519_SIZE, "postcondition");
+
 		int* var18 = r + i;
 		int var18_ = *var18;
 		c += var18_;
@@ -222,6 +231,7 @@ static void fe_mul_c(byte *r, const byte *a, word32 b)
 	int i;
 
 	for (i = 0; i < F25519_SIZE; i++) {
+				__CPROVER_assert(i < F25519_SIZE, "postcondition");
 		c >>= 8;
 		int* var40 = a + i;
 		int var40_ = *var40;
@@ -234,6 +244,8 @@ static void fe_mul_c(byte *r, const byte *a, word32 b)
 	c *= 19;
 
 	for (i = 0; i < F25519_SIZE; i++) {
+				__CPROVER_assert(i < F25519_SIZE, "postcondition");
+
 			int* var41 = a + i;
 		int var41_ = *var41;
 		c += var41_;
