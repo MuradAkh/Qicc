@@ -27,7 +27,7 @@ class hasAssert asserts= object(self)
         match expr with
         | Lval(lh, off) -> 
           match lh with 
-          | Var(info) -> (if(contains info.vname "assert") then asserts := getfunname !currentGlobal :: !asserts;
+          | Var(info) -> (if(contains info.vname "__CPROVER_assert") then asserts := getfunname !currentGlobal :: !asserts;
           )
           | _ -> ();
           ;
