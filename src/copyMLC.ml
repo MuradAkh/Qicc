@@ -257,7 +257,7 @@ let checkbreak statement = (
 class assertsSwitcher eassert = object(self) 
     inherit nopCilVisitor
 
-    method vstmt s = 
+    (* method vstmt s = 
 
         let switchInst = (function
             | Call(lval, Lval(Var(info), off), exps, loc) -> 
@@ -269,10 +269,37 @@ class assertsSwitcher eassert = object(self)
     
         match s.skind with 
             | Instr(intrs) -> ChangeTo(mkStmt @@ Instr(List.map switchInst intrs))
-            | a -> DoChildren
+            | a -> DoChildren *)
 
+
+    method vinst = function 
+            | Call(lval, Lval(Var(info), off), exps, loc) -> 
+                if info.vname = "__CPROVER_assert" then(
+                    ChangeTo([ 
+                         Call(lval, v2e eassert.svar, exps, loc)
+                    ])
+                )else DoChildren
+            | _ -> DoChildren
+
+    
 
 end
+
+class stmtSwitcher = object(self)
+    inherit nopCilVisitor
+
+    method vblock b =
+        (* ignore(visitCilBlock (new stmtSwitcher) @@ b); *)
+        SkipChildren
+
+    method vstmt s = 
+        ChangeTo(mkStmt s.skind)
+end
+
+  let clone (type t) (x : t) : t = 
+     let buf = Marshal.(to_bytes x [No_sharing; Closures]) in
+     Marshal.from_bytes buf 0
+
 
 let switchAsserts (smtlist : stmt list) eassert : stmt list = 
 
@@ -307,7 +334,7 @@ class extractMLC assume eassert locals thisfunname (locals_locs: int list ref) =
   method vstmt s = match s.skind with
     | Loop(blk, loc, l2, l3) -> ( 
           
-            if(List.mem s.sid !locals) then ( 
+            if(true) then ( 
                 let action item = (
 
                     (* Has to be done asap due to a bug in CIL. This will be broken once a new visitor is called*)
@@ -348,16 +375,22 @@ class extractMLC assume eassert locals thisfunname (locals_locs: int list ref) =
                             pointer_params 
                     ) in
 
+                    let newStmts = List.map (fun a -> mkStmt a.skind) rstatements in
+                    let newb =   mkStmt @@ Block({battrs=blk.battrs; bstmts= asummes_valid_pointers @ newStmts}) in
+                     
+                    
+                    ignore(visitCilBlock (new stmtSwitcher) @@ force_block newb);
+
                     let x = 
                         newfun 
-                        (mkStmt (Block({battrs=blk.battrs; bstmts= asummes_valid_pointers @ rstatements})))
+                        ( (newb))
                         exprs 
                     in (
 
 
                     funcparents := [(getfunname x); thisfunname] :: !funcparents;
                     funclocs := [(getfunname x); 
-                        string_of_int (List.nth !locals_locs (find s.sid !locals))
+                        (getfunname x)
                         ] :: !funclocs;
 
 
@@ -369,11 +402,12 @@ class extractMLC assume eassert locals thisfunname (locals_locs: int list ref) =
                     match x with  
                         | GFun(fdec, loc) -> (
                             ignore(visitCilGlobal (new extractMLC assume eassert locals (getfunname x) locals_locs) x);
+                        
                             ignore(visitCilBlock (new assertsSwitcher eassert) blk);
                             (* mkStmt (Loop 
                             (
-                                mkBlock (switchAsserts blk.bstmts eassert), loc, l2, l3
-                            )); *)
+                                blk, loc, l2, l3
+                            )) *)
                             s
                             
                         )
