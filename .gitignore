@@ -13,3 +13,4 @@ node_modules
 a.out
 *.gen.c
 cli/*.js
+_____WORKDIR

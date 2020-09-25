@@ -3,7 +3,7 @@ const {performance} = require('perf_hooks');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
-const cases = fs.readFileSync('./test/v2/cases.txt', 'utf-8').split('\n');
+const cases = fs.readFileSync('./test/v2/cases.ua.txt', 'utf-8').split('\n');
 const benchmarks = fs.readFileSync('./test/v2/benchmarks.txt', 'utf-8').split('\n');
 const benchmark = process.argv[2]
 const timeout = 1000 * process.argv[3]
@@ -19,19 +19,18 @@ async function evaluate() {
     
     for (const casepath of cases) {
         const t0 = performance.now()
-        const qicc = false;
         
-        // const qicc = await exec(`node cli/cli.js --ua --file ${casepath}/${benchmark}.gen.c`, {timeout})
-        //     .then(r => r.stdout)
-        //     .then(parseCli)
-        //     .then(r => {
-        //         console.log(r)
-        //         return r.reduce((acc, curr) => curr.isTrue && acc, true)
-        //     })
-        //     .catch(err => {
-        //         console.log(err)
-        //         return false
-        //     })
+        const qicc = await exec(`node cli/cli.js --v2 --ua --file ${casepath}/${benchmark}.gen.c`, {timeout})
+            .then(r => r.stdout)
+            .then(parseCli)
+            .then(r => {
+                console.log(r)
+                return r.reduce((acc, curr) => curr.isTrue && acc, true)
+            })
+            .catch(err => {
+                console.log(err)
+                return false
+            })
 
         const t1 = performance.now()
         const pwd = await exec(`pwd`)
@@ -39,7 +38,14 @@ async function evaluate() {
             .catch(err => console.log(err))
 
         const cbmc = await exec(`cd ~/uauto && ./Ultimate.py --spec ~/uauto/PropertyUnreachCall.prp --architecture 64bit --file ${pwd}/${casepath}/${benchmark}.ua.gen.c`, {timeout})
-            .then((res) => true)
+            .then((res) => {
+                if(res.stdout.includes("TRUE")){
+                    return true
+                }else{
+                    console.log(stdout)
+                    return false
+                }
+            })
             .catch((err) => {
                 console.log(err);
                 return false;
@@ -54,6 +60,8 @@ async function evaluate() {
         console.log(`${casename}: ${qicctime}, ${cbmctime}`)
         log.push(`${casename}: ${qicctime}, ${cbmctime}`)
         await exec("killall -9 java").catch(() => {});
+        await exec("killall -9 mathsat").catch(() => {});
+        await exec("killall -9 z3").catch(() => {});
         
     }
 
@@ -62,5 +70,5 @@ async function evaluate() {
 }
 
 evaluate()
-    .then(l => fs.writeFileSync(`./results/${benchmark}.result`, l.join("\n")))
+    .then(l => fs.writeFileSync(`./results/${benchmark}.ua.result`, l.join("\n")))
     .catch(console.log)

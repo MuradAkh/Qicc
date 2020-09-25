@@ -127,8 +127,8 @@ let rec saveexpr (exprs: funcvar VarTypes.t ref) isset item: unit = (
 
             
             let cpy = ( match info.vtype with 
-                    | _ when isset = 0 -> info;
-                    | _ -> let c = copyVarinfo info info.vname in c.vtype <- TPtr(info.vtype, []); c;
+                    | _ -> info;
+                    (* | _ -> let c = copyVarinfo info info.vname in c.vtype <- TPtr(info.vtype, []); c; *)
             ) in
             
 
@@ -285,21 +285,30 @@ class assertsSwitcher eassert = object(self)
 
 end
 
+let rec cloneBlock  (blk : Cil.block) : Cil.block = 
+    let rec cloneStmt s = match s.skind with 
+        | If(e, b1, b2, loc) -> 
+            mkStmt @@ If(e, cloneBlock b1, cloneBlock b2, loc)
+        | Switch(e, b1, slist, loc) -> 
+            mkStmt @@ Switch(e, cloneBlock b1, List.map cloneStmt slist, loc)
+        | Block(blk) -> mkStmt @@ Block(cloneBlock blk)
+        | Loop(blk, loc, so1, so2) -> mkStmt @@ Loop(cloneBlock blk, loc, so1, so2)
+        | TryExcept(b1, is, b2, loc) -> mkStmt @@ TryExcept(cloneBlock b1, is,cloneBlock b2, loc)
+        | TryFinally(b1, b2, loc) -> mkStmt @@ TryFinally(cloneBlock b1, cloneBlock b2, loc)
+        | _ -> mkStmt s.skind
+
+
+    in 
+    mkBlock @@ List.map cloneStmt blk.bstmts
+
+
 class stmtSwitcher = object(self)
     inherit nopCilVisitor
 
-    method vblock b =
-        (* ignore(visitCilBlock (new stmtSwitcher) @@ b); *)
-        SkipChildren
 
     method vstmt s = 
         ChangeTo(mkStmt s.skind)
 end
-
-  let clone (type t) (x : t) : t = 
-     let buf = Marshal.(to_bytes x [No_sharing; Closures]) in
-     Marshal.from_bytes buf 0
-
 
 let switchAsserts (smtlist : stmt list) eassert : stmt list = 
 
@@ -324,6 +333,7 @@ let switchAsserts (smtlist : stmt list) eassert : stmt list =
     in
 
     List.map switchOne smtlist;
+
 
 
 
@@ -376,14 +386,13 @@ class extractMLC assume eassert locals thisfunname (locals_locs: int list ref) =
                     ) in
 
                     let newStmts = List.map (fun a -> mkStmt a.skind) rstatements in
-                    let newb =   mkStmt @@ Block({battrs=blk.battrs; bstmts= asummes_valid_pointers @ newStmts}) in
-                     
+                    let newb =  mkStmt @@ Block({battrs=blk.battrs; bstmts= asummes_valid_pointers @ newStmts}) in 
                     
                     ignore(visitCilBlock (new stmtSwitcher) @@ force_block newb);
 
                     let x = 
                         newfun 
-                        ( (newb))
+                        (mkStmt @@ Block(cloneBlock @@ force_block @@ (newb) ))
                         exprs 
                     in (
 
