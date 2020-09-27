@@ -1,0 +1,8 @@
+    unsigned int x = 0;
+	unsigned int y = 12;
+	unsigned int z=6;
+	while(x<y){	
+		if(x>=6)
+			z++;
+		x++;
+	}

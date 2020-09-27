@@ -1,0 +1,7 @@
+          int n, sum, k;
+        n;
+        __CPROVER_assume(1 <= n && n <= 25);
+            sum = 0;
+        for(k = 1; k <= n; k++) {
+            sum = sum + k;
+        }

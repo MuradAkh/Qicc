@@ -1,0 +1,7 @@
+double x,y;
+
+__CPROVER_assume(x >= 0. && x <= 10.);
+
+y = x*x - x;
+if (y >= 0) y = x / 10.;
+else y = x*x + 2.;
