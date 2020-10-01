@@ -1,1 +1,1 @@
-        __CPROVER_assert(2*sum == n*(n+1), "postcondition");
+        __CPROVER_assert(2*sum == nm*(nm+1), "postcondition");

@@ -1,1 +1,2 @@
-__CPROVER_assert(y >= 0. & y <= 105., "postcondition");
+__CPROVER_assert(y >= 0., "postcondition");
+__CPROVER_assert(y <= 105., "postcondition");

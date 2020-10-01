@@ -1,1 +1,1 @@
-  __CPROVER_assert(S >= 1. & S <= 2. , "postcondition");
+  __CPROVER_assert(S >= 1. && S <= 2. , "postcondition");

@@ -1,1 +1,2 @@
-    __CPROVER_assert(k < 0 | n == k, "postcondition");
+    __CPROVER_assert((n == k) || (k < 0), "postcondition");
+
