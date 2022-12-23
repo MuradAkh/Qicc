@@ -292,7 +292,11 @@ let rec cloneBlock  (blk : Cil.block) : Cil.block =
         | Switch(e, b1, slist, loc) -> 
             mkStmt @@ Switch(e, cloneBlock b1, List.map cloneStmt slist, loc)
         | Block(blk) -> mkStmt @@ Block(cloneBlock blk)
-        | Loop(blk, loc, so1, so2) -> mkStmt @@ Loop(cloneBlock blk, loc, so1, so2)
+        | Loop(blk, loc, so1, so2) -> (
+            let ns = mkStmt @@ Loop(cloneBlock blk, loc, so1, so2) in 
+            ns.sid <- s.sid;
+            ns
+        )
         | TryExcept(b1, is, b2, loc) -> mkStmt @@ TryExcept(cloneBlock b1, is,cloneBlock b2, loc)
         | TryFinally(b1, b2, loc) -> mkStmt @@ TryFinally(cloneBlock b1, cloneBlock b2, loc)
         | _ -> mkStmt s.skind
@@ -344,7 +348,7 @@ class extractMLC assume eassert locals thisfunname (locals_locs: int list ref) =
   method vstmt s = match s.skind with
     | Loop(blk, loc, l2, l3) -> ( 
           
-            if(true) then ( 
+            if(List.mem s.sid !locals) then ( 
                 let action item = (
 
                     (* Has to be done asap due to a bug in CIL. This will be broken once a new visitor is called*)

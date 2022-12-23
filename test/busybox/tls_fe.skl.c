@@ -6,8 +6,12 @@
 typedef int  byte;
 typedef int word16;
 typedef int word32;
-int __CPROVER_assert(int a, char *b) {}
+// int __VERIFIER_error() {}
+int __CPROVER_assert(int a, char *b) {if(a == 0){__VERIFIER_error();}}
+// int __CPROVER_assert(int a, char *b) {}
 int __CPROVER_assume(int a ){}
+int __QICC_assert(int a, char *b) {}
+
 #define XMEMSET  memset
 
 #define F25519_SIZE 32

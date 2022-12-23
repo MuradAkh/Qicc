@@ -4,3 +4,4 @@
 
   __CPROVER_assume(x >= -1.f);
   __CPROVER_assume(x <= 1.f);
+  __CPROVER_assume(x <= -1e-20f || x >= 1e-20f);

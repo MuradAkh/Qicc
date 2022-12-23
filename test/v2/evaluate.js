@@ -13,6 +13,15 @@ parseCli = (stdout) => {
     return JSON.parse(json)
 }
 
+function cant_terminate(casepath, solver){
+    if (solver == "cbmc"){
+        return casepath.includes("dynamic");
+    }else{
+        return (casepath.includes("1block") && casepath.includes("_dynamic")) ||
+               (casepath.includes("2block") && casepath.includes("dynamic")) ||
+               (casepath.includes("_block") && casepath.includes("dynamic"))
+    }
+}
 
 async function evaluate() {
     const log = []
@@ -20,7 +29,7 @@ async function evaluate() {
     for (const casepath of cases) {
         const t0 = performance.now()
         
-        const qicc = await exec(`node cli/cli.js --file ${casepath}/${benchmark}.gen.c`, {timeout})
+        const qicc = cant_terminate(casepath, "qicc") ? false : await exec(`node cli/cli.js --v2 --file ${casepath}/${benchmark}.gen.c`, {timeout})
             .then(r => r.stdout)
             .then(parseCli)
             .then(r => {
@@ -31,13 +40,14 @@ async function evaluate() {
                 console.log(err)
                 return false
             })
+          
 
         const t1 = performance.now()
 
-        const cbmc = await exec(`cbmc --unwind 201 --unwinding-assertions ${casepath}/${benchmark}.gen.c > /dev/null`, {timeout})
+        const cbmc = cant_terminate(casepath, "cbmc") ? false : await exec(`cbmc --unwind 201 --unwinding-assertions ${casepath}/${benchmark}.gen.c > /dev/null`, {timeout})
             .then(() => true)
             .catch(() => false)
-
+            
 
         const t2 = performance.now()
 

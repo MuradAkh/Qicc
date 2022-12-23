@@ -225,6 +225,7 @@ let getExprs stmt = (
         DoChildren;
     ) in 
 
+
     let call lh off gfun params loc =  
         saveexpr exprs 0 (Lval((lh, off))); 
         List.iter (saveexpr exprs 0) params;
@@ -346,10 +347,11 @@ class extractMLC assume locals thisfunname (locals_locs: int list ref) = object(
                     (*TODO: add assume each pointer not null *)
                     let asummes_valid_pointers = (
                         let pointer_params = (
-                         List.filter 
+                         (* List.filter 
                             (fun p -> isPointerType (typeOf p ) )
                             exprs
-                         ) in
+                        ) in *)
+                        []) in
                          
                          List.map 
                             (fun p -> i2s (Call(None, (v2e assume.svar ), 

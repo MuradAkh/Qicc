@@ -150,6 +150,8 @@ static int KeyExpansion(int *RoundKey, const void *key, unsigned key_len)
 	// key_len 16: aes128, rounds 10, words_key 4, words_RoundKey 44
 	// key_len 24: aes192, rounds 12, words_key 6, words_RoundKey 52
 	// key_len 32: aes256, rounds 14, words_key 8, words_RoundKey 60
+	__CPROVER_assume(key_len >= 16);
+	__CPROVER_assume(key_len <= 32);
 	words_key = key_len / 4;
 	rounds = 6 + (key_len / 4);
 	words_RoundKey = 28 + key_len;
@@ -163,13 +165,14 @@ static int KeyExpansion(int *RoundKey, const void *key, unsigned key_len)
 	// i == words_key now
 
 	// All other round keys are found from the previous round keys.
-	j = k = 0;
+	j = 0;
+	k = 0;
 	for (; i < words_RoundKey; i++) {
 		int* var1 = RoundKey + (i-1);
 		int var1_ = *var1;
 		void* tempa = (void*) var1_;
 		if (j == 0) {
-			__CPROVER_assert(k < words_RoundKey, "postcondition");
+			__CPROVER_assert(k < 10, "postcondition");
 			int* var3 = Rcon + k;
 			int var3_ = *var3;
 			// RotWord(): rotates the 4 bytes in a word to the left once.
